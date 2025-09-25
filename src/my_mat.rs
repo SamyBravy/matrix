@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(Clone, Debug)]
 pub struct Matrix<K> {
     data: Vec<K>,
     shape: Vec<usize>,
@@ -68,6 +69,47 @@ fn compute_strides(shape: &[usize]) -> Vec<usize> {
         acc = acc.saturating_mul(shape[i]);
     }
     strides
+}
+use std::ops::{Index, IndexMut};
+
+impl<K> Index<&[usize]> for Matrix<K> {
+    type Output = K;
+
+    fn index(&self, index: &[usize]) -> &Self::Output {
+        match self.index_flat(index) {
+            Some(i) => &self.data[i],
+            None => panic!("matrix index out of bounds or wrong dimensionality: {:?}", index),
+        }
+    }
+}
+
+impl<K> IndexMut<&[usize]> for Matrix<K> {
+    fn index_mut(&mut self, index: &[usize]) -> &mut Self::Output {
+        match self.index_flat(index) {
+            Some(i) => &mut self.data[i],
+            None => panic!("matrix index out of bounds or wrong dimensionality: {:?}", index),
+        }
+    }
+}
+
+impl<K> Index<usize> for Matrix<K> {
+    type Output = K;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        if self.shape.len() != 1 {
+            panic!("Index<usize> only supported for 1-D matrices, found {} dims", self.shape.len());
+        }
+        &self.data[index]
+    }
+}
+
+impl<K> IndexMut<usize> for Matrix<K> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        if self.shape.len() != 1 {
+            panic!("IndexMut<usize> only supported for 1-D matrices, found {} dims", self.shape.len());
+        }
+        &mut self.data[index]
+    }
 }
 
 pub trait Scalar {}

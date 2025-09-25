@@ -1,5 +1,7 @@
 use crate::my_mat::Matrix;
-use std::fmt;
+use std::{fmt, ops::Index, ops::IndexMut};
+
+#[derive(Clone)]
 pub struct Vector<K> {
     data: Vec<K>,
 }
@@ -11,6 +13,12 @@ impl<K> Vector<K> {
 
     pub fn into_vec(self) -> Vec<K> {
         self.data
+    }
+}
+
+impl<K> From<Vec<K>> for Vector<K> {
+    fn from(data: Vec<K>) -> Self {
+        Vector { data }
     }
 }
 
@@ -75,5 +83,19 @@ where
 {
     fn eq(&self, other: &Self) -> bool {
         self.data == other.data
+    }
+}
+
+impl<K> IndexMut<usize> for Vector<K> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
+    }
+}
+
+impl<K> Index<usize> for Vector<K> {
+    type Output = K;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
     }
 }
