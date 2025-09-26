@@ -1,13 +1,20 @@
 use std::fmt;
 
 #[derive(Clone, Debug)]
+/// A multi-dimensional array (tensor) with arbitrary shape, stored in a contiguous `Vec<K>`.
+/// Uses row-major (C-order) indexing for efficient access.
+/// Supports element-wise operations, indexing, and construction from nested vectors or vectors.
 pub struct Matrix<K> {
-    data: Vec<K>,
+    pub(crate) data: Vec<K>,
     shape: Vec<usize>,
     strides: Vec<usize>, // strides for C-order indexing
 }
 
 impl<K> Matrix<K> {
+    /// Creates a new `Matrix` from a flat data vector and a shape vector.
+    ///
+    /// # Panics
+    /// Panics if the product of the shape dimensions does not equal the length of the data vector.
     pub fn new(data: Vec<K>, shape: Vec<usize>) -> Self {
         let expected: usize = shape.iter().product();
         assert!(
@@ -24,6 +31,7 @@ impl<K> Matrix<K> {
         }
     }
 
+    /// Returns the shape of the matrix as a slice of dimensions.
     pub fn dims(&self) -> &[usize] {
         &self.shape
     }
@@ -43,18 +51,22 @@ impl<K> Matrix<K> {
         Some(idx)
     }
 
+    /// Returns a reference to the element at the given multi-dimensional indices, or `None` if out of bounds.
     pub fn get(&self, indices: &[usize]) -> Option<&K> {
         self.index_flat(indices).map(|i| &self.data[i])
     }
 
+    /// Returns a mutable reference to the element at the given multi-dimensional indices, or `None` if out of bounds.
     pub fn get_mut(&mut self, indices: &[usize]) -> Option<&mut K> {
         self.index_flat(indices).map(move |i| &mut self.data[i])
     }
 
+    /// Returns an iterator over all elements in row-major order.
     pub fn linear_iter(&self) -> impl Iterator<Item = &K> {
         self.data.iter()
     }
 
+    /// Returns the total number of elements in the matrix.
     pub fn len(&self) -> usize {
         self.data.len()
     }
@@ -112,6 +124,7 @@ impl<K> IndexMut<usize> for Matrix<K> {
     }
 }
 
+/// Marker trait for types that can be used as scalar elements in matrices.
 pub trait Scalar {}
 impl Scalar for f32 {}
 impl Scalar for f64 {}
@@ -120,8 +133,13 @@ impl Scalar for i64 {}
 impl Scalar for usize {}
 impl Scalar for num_complex::Complex<f64> {}
 impl Scalar for num_complex::Complex<f32> {}
+
+
+/// Trait for types that can be recursively nested to build matrices.
 pub trait Nested<T> {
+    /// Returns the shape of this nested structure, or an error if siblings differ.
     fn shape_checked(&self) -> Result<Vec<usize>, String>;
+    /// Appends all leaf elements into out in row-major (C-order) traversal.
     fn flatten_into(&self, out: &mut Vec<T>);
 }
 

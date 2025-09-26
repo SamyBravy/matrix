@@ -1,9 +1,12 @@
 use crate::my_mat::Matrix;
-use std::{fmt, ops::Index, ops::IndexMut};
+use std::{
+    fmt,
+    ops::{Index, IndexMut},
+};
 
 #[derive(Clone)]
 pub struct Vector<K> {
-    data: Vec<K>,
+    pub(crate) data: Vec<K>,
 }
 
 impl<K> Vector<K> {
@@ -13,6 +16,15 @@ impl<K> Vector<K> {
 
     pub fn into_vec(self) -> Vec<K> {
         self.data
+    }
+}
+
+impl<K> Default for Vector<K>
+where
+    K: Default + Clone,
+{
+    fn default() -> Self {
+        Vector { data: vec![] }
     }
 }
 
@@ -89,6 +101,43 @@ where
 impl<K> IndexMut<usize> for Vector<K> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.data[index]
+    }
+}
+
+// Iterator implementations
+impl<K> IntoIterator for Vector<K>
+where
+    K: Clone,
+{
+    type Item = K;
+    type IntoIter = std::vec::IntoIter<K>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
+impl<'a, K> IntoIterator for &'a Vector<K>
+where
+    K: Clone,
+{
+    type Item = &'a K;
+    type IntoIter = std::slice::Iter<'a, K>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.iter()
+    }
+}
+
+impl<'a, K> IntoIterator for &'a mut Vector<K>
+where
+    K: Clone,
+{
+    type Item = &'a mut K;
+    type IntoIter = std::slice::IterMut<'a, K>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.iter_mut()
     }
 }
 
