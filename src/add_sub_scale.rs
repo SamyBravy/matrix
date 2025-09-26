@@ -1,4 +1,4 @@
-use crate::my_mat::{Matrix, Scalar};
+use crate::my_mat::{Matrix};
 use crate::my_vect::Vector;
 use std::ops::{Add, Mul, Sub, AddAssign, SubAssign, MulAssign};
 

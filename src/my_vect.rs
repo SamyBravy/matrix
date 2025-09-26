@@ -34,6 +34,12 @@ impl<K> From<Vec<K>> for Vector<K> {
     }
 }
 
+impl<K, const N: usize> From<[K; N]> for Vector<K> {
+    fn from(arr: [K; N]) -> Self {
+        Vector { data: arr.into() }
+    }
+}
+
 impl<K> From<Matrix<K>> for Vector<K>
 where
     K: Clone,
@@ -57,7 +63,7 @@ impl<K> Vector<K>
 where
     K: Clone,
 {
-    fn iter(&self) -> impl Iterator<Item = &K> {
+    pub fn iter(&self) -> impl Iterator<Item = &K> {
         self.data.iter()
     }
 }

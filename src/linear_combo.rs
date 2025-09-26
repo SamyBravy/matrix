@@ -5,13 +5,21 @@ where
     K: Clone + std::ops::Mul<Output = K> + std::ops::Add<Output = K> + Default,
 {
     if u.len() != coefs.len() {
-        panic!("Wrong input!")
+        panic!("vectors and coefficients must have the same length");
     }
-    let mut result: Vector<K> = Vector::default();
-    for (v, mult) in u.iter().zip(coefs.iter()) {
-        for i in 0..v.len() {
-            result.data[i] = result.data[i].clone() + v[i].clone() * mult.clone();
+    if u.is_empty() {
+        panic!("input vector slice must not be empty");
+    }
+    let dim = u[0].len();
+    let mut result: Vector<K> = Vector::from(vec![K::default(); dim]);
+    for (vec, coef) in u.iter().zip(coefs.iter()) {
+        if vec.len() != dim {
+            panic!("all vectors must have the same dimension");
+        }
+        for i in 0..dim {
+            result.data[i] = result.data[i].clone() + vec[i].clone() * coef.clone();
         }
     }
+
     result
 }
