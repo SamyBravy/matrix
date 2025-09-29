@@ -1,6 +1,6 @@
-use crate::my_mat::{Matrix};
+use crate::my_mat::Matrix;
 use crate::my_vect::Vector;
-use std::ops::{Add, Mul, Sub, AddAssign, SubAssign, MulAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 pub trait Scale<K> {
     type Output;
@@ -14,26 +14,14 @@ where
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let len = if self.len() > rhs.len() {
-            self.len()
-        } else {
-            rhs.len()
-        };
-        let mut result = Vec::with_capacity(len);
-        for n in 0..len {
-            let a = if n < self.len() {
-                self[n].clone()
-            } else {
-                K::default()
-            };
-            let b = if n < rhs.len() {
-                rhs[n].clone()
-            } else {
-                K::default()
-            };
-            result.push(a + b);
+        let len = self.len().max(rhs.len());
+        let mut data = Vec::with_capacity(len);
+        for i in 0..len {
+            let a = self.get(i).cloned().unwrap_or_default();
+            let b = rhs.get(i).cloned().unwrap_or_default();
+            data.push(a + b);
         }
-        Vector::from(result)
+        Vector::from(data)
     }
 }
 
@@ -44,26 +32,14 @@ where
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        let len = if self.len() > rhs.len() {
-            self.len()
-        } else {
-            rhs.len()
-        };
-        let mut result = Vec::with_capacity(len);
-        for n in 0..len {
-            let a = if n < self.len() {
-                self[n].clone()
-            } else {
-                K::default()
-            };
-            let b = if n < rhs.len() {
-                rhs[n].clone()
-            } else {
-                K::default()
-            };
-            result.push(a - b);
+        let len = self.len().max(rhs.len());
+        let mut data = Vec::with_capacity(len);
+        for i in 0..len {
+            let a = self.get(i).cloned().unwrap_or_default();
+            let b = rhs.get(i).cloned().unwrap_or_default();
+            data.push(a - b);
         }
-        Vector::from(result)
+        Vector::from(data)
     }
 }
 
@@ -89,13 +65,11 @@ where
 {
     fn add_assign(&mut self, rhs: Self) {
         let len = self.len().max(rhs.len());
-        let mut result = Vec::with_capacity(len);
-        for n in 0..len {
-            let a = if n < self.len() { self[n].clone() } else { K::default() };
-            let b = if n < rhs.len() { rhs[n].clone() } else { K::default() };
-            result.push(a + b);
+        self.resize(len, K::default());
+        for i in 0..len {
+            let b = rhs.get(i).cloned().unwrap_or_default();
+            self[i] = self[i].clone() + b;
         }
-        self.data = result;
     }
 }
 
@@ -105,13 +79,11 @@ where
 {
     fn sub_assign(&mut self, rhs: Self) {
         let len = self.len().max(rhs.len());
-        let mut result = Vec::with_capacity(len);
-        for n in 0..len {
-            let a = if n < self.len() { self[n].clone() } else { K::default() };
-            let b = if n < rhs.len() { rhs[n].clone() } else { K::default() };
-            result.push(a - b);
+        self.resize(len, K::default());
+        for i in 0..len {
+            let b = rhs.get(i).cloned().unwrap_or_default();
+            self[i] = self[i].clone() - b;
         }
-        self.data = result;
     }
 }
 
@@ -122,24 +94,23 @@ where
     type Output = Self;
 
     fn mul(self, rhs: K) -> Self::Output {
-        let mut result = Vec::with_capacity(self.len());
-        for item in self.data {
-            result.push(item * rhs.clone());
+        let mut result: Vec<K> = Vec::with_capacity(self.len());
+        for item in self.iter() {
+            result.push(item.clone() * rhs.clone());
         }
         Vector::from(result)
     }
 }
 
-impl <K> MulAssign<K> for Vector<K>
+impl<K> MulAssign<K> for Vector<K>
 where
-		K: Mul<Output = K> + Clone,
+    K: Mul<Output = K> + Clone,
 {
-		fn mul_assign(&mut self, rhs: K) {
-				for item in &mut self.data {
-						*item = item.clone() * rhs.clone();
-				}
-		}
-		
+    fn mul_assign(&mut self, rhs: K) {
+        for item in &mut self.into_iter() {
+            *item = item.clone() * rhs.clone();
+        }
+    }
 }
 
 impl<K> Add for Matrix<K>
@@ -149,16 +120,16 @@ where
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        if self.dims() == rhs.dims() {
-            let a_flat: Vec<K> = self.linear_iter().cloned().collect();
-            let b_flat: Vec<K> = rhs.linear_iter().cloned().collect();
-            let mut data = Vec::with_capacity(a_flat.len());
-            for i in 0..a_flat.len() {
-                data.push(a_flat[i].clone() + b_flat[i].clone());
-            }
-            return Matrix::new(data, self.dims().to_vec());
+        if self.dims() != rhs.dims() {
+            panic!("Matrix addition only supports same shape matrices");
         }
-        panic!("Matrix addition only supports same shape matrices");
+        let data: Vec<K> = self
+            .linear_iter()
+            .cloned()
+            .zip(rhs.linear_iter().cloned())
+            .map(|(a, b)| a + b)
+            .collect();
+        Matrix::new(data, self.dims().to_vec())
     }
 }
 
@@ -170,14 +141,13 @@ where
         if self.dims() != rhs.dims() {
             panic!("Matrix addition only supports same shape matrices");
         }
-        let a_flat: Vec<K> = self.linear_iter().cloned().collect();
-        let b_flat: Vec<K> = rhs.linear_iter().cloned().collect();
-        let mut data = Vec::with_capacity(a_flat.len());
-        for i in 0..a_flat.len() {
-            data.push(a_flat[i].clone() + b_flat[i].clone());
-        }
-        self.data = data;
-        // shape remains the same
+        let data: Vec<K> = self
+            .linear_iter()
+            .cloned()
+            .zip(rhs.linear_iter().cloned())
+            .map(|(a, b)| a + b)
+            .collect();
+        *self = Matrix::new(data, self.dims().to_vec());
     }
 }
 
@@ -188,16 +158,16 @@ where
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        if self.dims() == rhs.dims() {
-            let a_flat: Vec<K> = self.linear_iter().cloned().collect();
-            let b_flat: Vec<K> = rhs.linear_iter().cloned().collect();
-            let mut data = Vec::with_capacity(a_flat.len());
-            for i in 0..a_flat.len() {
-                data.push(a_flat[i].clone() - b_flat[i].clone());
-            }
-            return Matrix::new(data, self.dims().to_vec());
+        if self.dims() != rhs.dims() {
+            panic!("Matrix subtraction only supports same shape matrices");
         }
-        panic!("Matrix subtraction only supports same shape matrices");
+        let data: Vec<K> = self
+            .linear_iter()
+            .cloned()
+            .zip(rhs.linear_iter().cloned())
+            .map(|(a, b)| a - b)
+            .collect();
+        Matrix::new(data, self.dims().to_vec())
     }
 }
 
@@ -209,13 +179,13 @@ where
         if self.dims() != rhs.dims() {
             panic!("Matrix subtraction only supports same shape matrices");
         }
-        let a_flat: Vec<K> = self.linear_iter().cloned().collect();
-        let b_flat: Vec<K> = rhs.linear_iter().cloned().collect();
-        let mut data = Vec::with_capacity(a_flat.len());
-        for i in 0..a_flat.len() {
-            data.push(a_flat[i].clone() - b_flat[i].clone());
-        }
-        self.data = data;
+        let data: Vec<K> = self
+            .linear_iter()
+            .cloned()
+            .zip(rhs.linear_iter().cloned())
+            .map(|(a, b)| a - b)
+            .collect();
+        *self = Matrix::new(data, self.dims().to_vec());
     }
 }
 
@@ -256,9 +226,12 @@ where
     K: Mul<Output = K> + Clone,
 {
     fn mul_assign(&mut self, rhs: K) {
-        for item in &mut self.data {
-            *item = item.clone() * rhs.clone();
-        }
+        let data: Vec<K> = self
+            .linear_iter()
+            .cloned()
+            .map(|item| item * rhs.clone())
+            .collect();
+        *self = Matrix::new(data, self.dims().to_vec());
     }
 }
 
@@ -335,7 +308,10 @@ mod tests {
         let v = Matrix::try_from_nested(vec![vec![7.0, 4.0], vec![-2.0, 2.0]]).unwrap();
         let result = u.add(v);
         let expected = Matrix::try_from_nested(vec![vec![8.0, 6.0], vec![1.0, 6.0]]).unwrap();
-        assert_eq!(result.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            result.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -344,7 +320,10 @@ mod tests {
         let v = Matrix::try_from_nested(vec![vec![7.0, 4.0], vec![-2.0, 2.0]]).unwrap();
         u += v;
         let expected = Matrix::try_from_nested(vec![vec![8.0, 6.0], vec![1.0, 6.0]]).unwrap();
-        assert_eq!(u.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            u.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -353,7 +332,10 @@ mod tests {
         let v = Matrix::try_from_nested(vec![vec![7.0, 4.0], vec![-2.0, 2.0]]).unwrap();
         let result = u.sub(v);
         let expected = Matrix::try_from_nested(vec![vec![-6.0, -2.0], vec![5.0, 2.0]]).unwrap();
-        assert_eq!(result.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            result.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -362,7 +344,10 @@ mod tests {
         let v = Matrix::try_from_nested(vec![vec![7.0, 4.0], vec![-2.0, 2.0]]).unwrap();
         u -= v;
         let expected = Matrix::try_from_nested(vec![vec![-6.0, -2.0], vec![5.0, 2.0]]).unwrap();
-        assert_eq!(u.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            u.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -370,7 +355,10 @@ mod tests {
         let u = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
         let result = u.scale(2.0);
         let expected = Matrix::try_from_nested(vec![vec![2.0, 4.0], vec![6.0, 8.0]]).unwrap();
-        assert_eq!(result.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            result.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -378,7 +366,10 @@ mod tests {
         let u = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
         let result = u * 2.0;
         let expected = Matrix::try_from_nested(vec![vec![2.0, 4.0], vec![6.0, 8.0]]).unwrap();
-        assert_eq!(result.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            result.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -386,6 +377,9 @@ mod tests {
         let mut u = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
         u *= 2.0;
         let expected = Matrix::try_from_nested(vec![vec![2.0, 4.0], vec![6.0, 8.0]]).unwrap();
-        assert_eq!(u.linear_iter().cloned().collect::<Vec<_>>(), expected.linear_iter().cloned().collect::<Vec<_>>());
+        assert_eq!(
+            u.linear_iter().cloned().collect::<Vec<_>>(),
+            expected.linear_iter().cloned().collect::<Vec<_>>()
+        );
     }
 }

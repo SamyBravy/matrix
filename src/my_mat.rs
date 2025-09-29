@@ -5,7 +5,7 @@ use std::fmt;
 /// Uses row-major (C-order) indexing for efficient access.
 /// Supports element-wise operations, indexing, and construction from nested vectors or vectors.
 pub struct Matrix<K> {
-    pub(crate) data: Vec<K>,
+    data: Vec<K>,
     shape: Vec<usize>,
     strides: Vec<usize>, // strides for C-order indexing
 }
@@ -90,7 +90,10 @@ impl<K> Index<&[usize]> for Matrix<K> {
     fn index(&self, index: &[usize]) -> &Self::Output {
         match self.index_flat(index) {
             Some(i) => &self.data[i],
-            None => panic!("matrix index out of bounds or wrong dimensionality: {:?}", index),
+            None => panic!(
+                "matrix index out of bounds or wrong dimensionality: {:?}",
+                index
+            ),
         }
     }
 }
@@ -99,7 +102,10 @@ impl<K> IndexMut<&[usize]> for Matrix<K> {
     fn index_mut(&mut self, index: &[usize]) -> &mut Self::Output {
         match self.index_flat(index) {
             Some(i) => &mut self.data[i],
-            None => panic!("matrix index out of bounds or wrong dimensionality: {:?}", index),
+            None => panic!(
+                "matrix index out of bounds or wrong dimensionality: {:?}",
+                index
+            ),
         }
     }
 }
@@ -109,7 +115,10 @@ impl<K> Index<usize> for Matrix<K> {
 
     fn index(&self, index: usize) -> &Self::Output {
         if self.shape.len() != 1 {
-            panic!("Index<usize> only supported for 1-D matrices, found {} dims", self.shape.len());
+            panic!(
+                "Index<usize> only supported for 1-D matrices, found {} dims",
+                self.shape.len()
+            );
         }
         &self.data[index]
     }
@@ -118,7 +127,10 @@ impl<K> Index<usize> for Matrix<K> {
 impl<K> IndexMut<usize> for Matrix<K> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         if self.shape.len() != 1 {
-            panic!("IndexMut<usize> only supported for 1-D matrices, found {} dims", self.shape.len());
+            panic!(
+                "IndexMut<usize> only supported for 1-D matrices, found {} dims",
+                self.shape.len()
+            );
         }
         &mut self.data[index]
     }
@@ -133,7 +145,6 @@ impl Scalar for i64 {}
 impl Scalar for usize {}
 impl Scalar for num_complex::Complex<f64> {}
 impl Scalar for num_complex::Complex<f32> {}
-
 
 /// Trait for types that can be recursively nested to build matrices.
 pub trait Nested<T> {

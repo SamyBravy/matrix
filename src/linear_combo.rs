@@ -17,7 +17,7 @@ where
             panic!("all vectors must have the same dimension");
         }
         for i in 0..dim {
-            result.data[i] = result.data[i].clone() + vec[i].clone() * coef.clone();
+            result[i] = result[i].clone() + vec[i].clone() * coef.clone();
         }
     }
 

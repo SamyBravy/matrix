@@ -5,6 +5,7 @@ mod linear_inter;
 mod my_mat;
 mod my_vect;
 mod norm;
+mod cosine;
 use crate::my_mat::Matrix;
 use crate::my_vect::Vector;
 use crate::norm::Norms;

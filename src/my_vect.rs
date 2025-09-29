@@ -6,7 +6,7 @@ use std::{
 
 #[derive(Clone)]
 pub struct Vector<K> {
-    pub(crate) data: Vec<K>,
+    data: Vec<K>,
 }
 
 impl<K> Vector<K> {
@@ -154,3 +154,26 @@ impl<K> Index<usize> for Vector<K> {
         &self.data[index]
     }
 }
+
+impl<K> Vector<K> {
+    pub fn insert_at(&mut self, index: usize, element: K) {
+        self.data.insert(index, element);
+    }
+    pub fn remove_at(&mut self, index: usize) -> K {
+        self.data.remove(index)
+    }
+}
+
+
+impl<K> Vector<K> {
+    pub fn get(&self, index: usize) -> Option<&K> {
+        self.data.get(index)
+    }
+		pub fn resize(&mut self, new_len: usize, value: K)
+		where
+				K: Clone,
+		{
+				self.data.resize(new_len, value);
+		}
+	}
+
