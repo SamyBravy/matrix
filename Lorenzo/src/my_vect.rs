@@ -57,6 +57,11 @@ impl<K> Vector<K> {
     pub fn len(&self) -> usize {
         self.data.len()
     }
+
+    /// Borrow the underlying slice.
+    pub fn as_slice(&self) -> &[K] {
+        &self.data
+    }
 }
 
 impl<K> Vector<K>

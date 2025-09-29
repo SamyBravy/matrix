@@ -205,36 +205,6 @@ where
     }
 }
 
-impl<K> Mul<K> for Matrix<K>
-where
-    K: Mul<Output = K> + Clone,
-{
-    type Output = Self;
-
-    fn mul(self, rhs: K) -> Self::Output {
-        let a_flat: Vec<K> = self.linear_iter().cloned().collect();
-        let mut data = Vec::with_capacity(a_flat.len());
-        for item in a_flat {
-            data.push(item * rhs.clone());
-        }
-        Matrix::new(data, self.dims().to_vec())
-    }
-}
-
-impl<K> MulAssign<K> for Matrix<K>
-where
-    K: Mul<Output = K> + Clone,
-{
-    fn mul_assign(&mut self, rhs: K) {
-        let data: Vec<K> = self
-            .linear_iter()
-            .cloned()
-            .map(|item| item * rhs.clone())
-            .collect();
-        *self = Matrix::new(data, self.dims().to_vec());
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

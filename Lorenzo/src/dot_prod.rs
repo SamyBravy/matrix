@@ -78,3 +78,69 @@ where
             .expect("failed to convert complex real part to f32")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::my_vect::Vector;
+    use num_complex::Complex;
+
+    #[test]
+    fn test_dot_product_f64() {
+        let u = Vector::from(vec![1.0f64, 2.0f64, 3.0f64]);
+        let v = Vector::from(vec![4.0f64, 5.0f64, 6.0f64]);
+        let result = u.dot(&v);
+        assert_eq!(result, 32.0); // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
+    }
+
+    #[test]
+    fn test_dot_product_f32() {
+        let u = Vector::from(vec![1.0f32, 2.0f32]);
+        let v = Vector::from(vec![3.0f32, 4.0f32]);
+        let result = u.dot(&v);
+        assert_eq!(result, 11.0); // 1*3 + 2*4 = 3 + 8 = 11
+    }
+
+    #[test]
+    fn test_dot_product_i32() {
+        let u = Vector::from(vec![1i32, 2i32, 3i32]);
+        let v = Vector::from(vec![4i32, 5i32, 6i32]);
+        let result = u.dot(&v);
+        assert_eq!(result, 32); // 1*4 + 2*5 + 3*6 = 32
+    }
+
+    #[test]
+    fn test_dot_product_complex_hermitian() {
+        // For complex vectors, dot product is Hermitian: conj(u) * v
+        let u = Vector::from(vec![Complex::new(1.0f32, 2.0f32)]);
+        let v = Vector::from(vec![Complex::new(3.0f32, 4.0f32)]);
+        let result = u.dot(&v);
+        // conj(1+2i) * (3+4i) = (1-2i) * (3+4i) = 3 + 4i - 6i - 8i^2 = 3 - 2i + 8 = 11 - 2i
+        assert_eq!(result, Complex::new(11.0, -2.0));
+    }
+
+    #[test]
+    fn test_dot_f32_real() {
+        let u = Vector::from(vec![1.0f64, 2.0f64]);
+        let v = Vector::from(vec![3.0f64, 4.0f64]);
+        let result = u.dot_f32(&v);
+        assert_eq!(result, 11.0);
+    }
+
+    #[test]
+    fn test_dot_f32_complex() {
+        let u = Vector::from(vec![Complex::new(1.0f32, 2.0f32)]);
+        let v = Vector::from(vec![Complex::new(3.0f32, 4.0f32)]);
+        let result = u.dot_f32(&v);
+        // Real part of (11 - 2i) is 11
+        assert_eq!(result, 11.0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Vectors must have the same length")]
+    fn test_dot_product_different_lengths() {
+        let u = Vector::from(vec![1.0f64, 2.0f64]);
+        let v = Vector::from(vec![3.0f64, 4.0f64, 5.0f64]);
+        u.dot(&v);
+    }
+}

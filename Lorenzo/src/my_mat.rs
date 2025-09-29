@@ -70,6 +70,56 @@ impl<K> Matrix<K> {
     pub fn len(&self) -> usize {
         self.data.len()
     }
+
+    /// Helper method for formatting n-dimensional matrices recursively
+    fn format_nd_recursive(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+        prefix: &[usize],
+        depth: usize,
+    ) -> fmt::Result
+    where
+        K: fmt::Display,
+    {
+        let nd = self.shape.len();
+        if depth == nd - 2 {
+            // At the second-to-last dimension, format as 2D slice
+            write!(f, "[")?;
+            let rows = self.shape[nd - 2];
+            let cols = self.shape[nd - 1];
+            for i in 0..rows {
+                if i > 0 {
+                    write!(f, ",\n{}", " ".repeat((depth + 1) * 2))?;
+                }
+                write!(f, "[")?;
+                for j in 0..cols {
+                    if j > 0 {
+                        write!(f, ", ")?;
+                    }
+                    let mut idx = prefix.to_vec();
+                    idx.push(i);
+                    idx.push(j);
+                    if let Some(v) = self.get(&idx) {
+                        write!(f, "{}", v)?;
+                    }
+                }
+                write!(f, "]")?;
+            }
+            write!(f, "]")
+        } else {
+            // Recursively format higher dimensions
+            write!(f, "[")?;
+            for i in 0..self.shape[depth] {
+                if i > 0 {
+                    write!(f, ",\n{}", " ".repeat((depth + 1) * 2))?;
+                }
+                let mut new_prefix = prefix.to_vec();
+                new_prefix.push(i);
+                self.format_nd_recursive(f, &new_prefix, depth + 1)?;
+            }
+            write!(f, "]")
+        }
+    }
 }
 
 fn compute_strides(shape: &[usize]) -> Vec<usize> {
@@ -315,83 +365,94 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let nd = self.shape.len();
         match nd {
-            0 => writeln!(f, "").map(|_| ()).or(Ok(())), // empty
+            0 => write!(f, "[]"), // empty matrix
             1 => {
+                write!(f, "[")?;
                 for i in 0..self.shape[0] {
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
                     if let Some(v) = self.get(&[i]) {
-                        write!(f, "{} ", v)?;
+                        write!(f, "{}", v)?;
                     }
                 }
-                writeln!(f)
+                write!(f, "]")
             }
             2 => {
                 let (r, c) = (self.shape[0], self.shape[1]);
+                write!(f, "[")?;
                 for i in 0..r {
+                    if i > 0 {
+                        write!(f, ",\n ")?;
+                    }
+                    write!(f, "[")?;
                     for j in 0..c {
+                        if j > 0 {
+                            write!(f, ", ")?;
+                        }
                         if let Some(v) = self.get(&[i, j]) {
-                            write!(f, "{} ", v)?;
+                            write!(f, "{}", v)?;
                         }
                     }
-                    writeln!(f)?;
+                    write!(f, "]")?;
                 }
-                Ok(())
+                write!(f, "]")
             }
             _ => {
-                let lead_dims = nd - 2;
-                let mut prefix = vec![0usize; lead_dims];
-                let mut first_block = true;
-                loop {
-                    if !first_block {
-                        writeln!(f)?;
-                    }
-                    first_block = false;
-
-                    write!(f, "slice ")?;
-                    write!(f, "[")?;
-                    for (pi, p) in prefix.iter().enumerate() {
-                        if pi > 0 {
-                            write!(f, ",")?;
-                        }
-                        write!(f, "{}", p)?;
-                    }
-                    writeln!(f, "]:")?;
-
-                    let rows = self.shape[nd - 2];
-                    let cols = self.shape[nd - 1];
-                    let mut idx = prefix.clone();
-                    for i in 0..rows {
-                        idx.push(i);
-                        for j in 0..cols {
-                            idx.push(j);
-                            if let Some(v) = self.get(&idx) {
-                                write!(f, "{} ", v)?;
-                            }
-                            idx.pop();
-                        }
-                        idx.pop();
-                        writeln!(f)?;
-                    }
-                    let mut carry = true;
-                    for d in (0..lead_dims).rev() {
-                        if carry {
-                            prefix[d] += 1;
-                            if prefix[d] >= self.shape[d] {
-                                prefix[d] = 0;
-                                carry = true;
-                            } else {
-                                carry = false;
-                            }
-                        }
-                    }
-                    if carry {
-                        break;
-                    }
-                }
-                Ok(())
+                // For 3D and higher, use nested bracket notation
+                self.format_nd_recursive(f, &[], 0)
             }
         }
     }
 }
+
+impl<K> IntoIterator for Matrix<K>
+where
+    K: Clone,
+{
+    type Item = K;
+    type IntoIter = std::vec::IntoIter<K>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
+impl <'a, K> IntoIterator for &'a Matrix<K>
+where
+		K: Clone,
+{
+		type Item = &'a K;
+		type IntoIter = std::slice::Iter<'a, K>;
+
+		fn into_iter(self) -> Self::IntoIter {
+				self.data.iter()
+		}
+}
+impl <'a, K> IntoIterator for &'a mut Matrix<K>
+where
+		K: Clone,
+{
+		type Item = &'a mut K;
+		type IntoIter = std::slice::IterMut<'a, K>;
+
+		fn into_iter(self) -> Self::IntoIter {
+				self.data.iter_mut()
+		}
+}
+
+// impl<'a,K> IntoIterator for &'a mut Matrix<K>
+// where
+// 		K: Clone,
+// {
+// 		type Item = &'a mut K;
+// 		type IntoIter = std::slice::IterMut<'a, K>;
+
+// 		fn into_iter(self) -> Self::IntoIter {
+// 				self.data.into_iter()
+// 		}
+		
+// }
 
 // TESTS
 #[cfg(test)]
@@ -459,10 +520,13 @@ mod tests {
         assert_eq!(m.get(&[1, 2, 3]).copied(), Some(exp2));
         assert_eq!(m.get(&[2, 0, 0]), None); // out of bounds on first dim
 
-        // Display should include a slice header and a 3x4 block for slice [0]
+        // Display should use nested bracket notation
         let s = format!("{}", m);
-        assert!(s.contains("slice [0]:"));
-        assert!(s.contains("0 1 2 3 \n4 5 6 7 \n8 9 10 11 \n"));
+        // Should contain nested brackets for 3D structure
+        assert!(s.starts_with("["));
+        assert!(s.contains("[0, 1, 2, 3]"));
+        assert!(s.contains("[4, 5, 6, 7]"));
+        assert!(s.contains("[8, 9, 10, 11]"));
     }
 
     #[test]
@@ -502,5 +566,130 @@ mod tests {
         assert_eq!(m.dims(), &[2]);
         assert_eq!(m.get(&[1]).unwrap().re, 3.0);
         assert_eq!(m.get(&[1]).unwrap().im, 4.0);
+    }
+
+    #[test]
+    fn creates_4d_matrix() {
+        // Create a 2x2x2x2 4D matrix
+        let d0 = 2usize;
+        let d1 = 2usize;
+        let d2 = 2usize;
+        let d3 = 2usize;
+
+        let mut nested = Vec::with_capacity(d0);
+        for i in 0..d0 {
+            let mut v1 = Vec::with_capacity(d1);
+            for j in 0..d1 {
+                let mut v2 = Vec::with_capacity(d2);
+                for k in 0..d2 {
+                    let mut v3 = Vec::with_capacity(d3);
+                    for l in 0..d3 {
+                        v3.push((((i * d1 + j) * d2 + k) * d3 + l) as i32);
+                    }
+                    v2.push(v3);
+                }
+                v1.push(v2);
+            }
+            nested.push(v1);
+        }
+
+        let m = Matrix::<i32>::try_from_nested(nested).unwrap();
+        assert_eq!(m.dims(), &[d0, d1, d2, d3]);
+
+        // Test some specific indices
+        assert_eq!(m.get(&[0, 0, 0, 0]), Some(&0));
+        assert_eq!(m.get(&[0, 0, 0, 1]), Some(&1));
+        assert_eq!(m.get(&[1, 1, 1, 1]), Some(&15)); // Last element
+        assert_eq!(m.get(&[2, 0, 0, 0]), None); // Out of bounds
+
+        // Test display format contains nested brackets
+        let s = format!("{}", m);
+        assert!(s.starts_with("["));
+        assert!(s.contains("[0, 1]"));
+        assert!(s.contains("[14, 15]"));
+    }
+
+    #[test]
+    fn creates_5d_matrix() {
+        // Create a small 2x2x2x2x2 5D matrix
+        let dims = [2, 2, 2, 2, 2];
+        let mut flat_data = Vec::new();
+
+        // Generate data in row-major order
+        for i0 in 0..dims[0] {
+            for i1 in 0..dims[1] {
+                for i2 in 0..dims[2] {
+                    for i3 in 0..dims[3] {
+                        for i4 in 0..dims[4] {
+                            let val = ((((i0 * dims[1] + i1) * dims[2] + i2) * dims[3] + i3)
+                                * dims[4]
+                                + i4) as i32;
+                            flat_data.push(val);
+                        }
+                    }
+                }
+            }
+        }
+
+        let m = Matrix::new(flat_data, dims.to_vec());
+        assert_eq!(m.dims(), &dims);
+
+        // Test corner cases
+        assert_eq!(m.get(&[0, 0, 0, 0, 0]), Some(&0));
+        assert_eq!(m.get(&[1, 1, 1, 1, 1]), Some(&31)); // Last element
+        assert_eq!(m.get(&[0, 1, 0, 1, 0]), Some(&10));
+
+        // Verify it displays without crashing
+        let s = format!("{}", m);
+        assert!(s.len() > 0);
+        assert!(s.starts_with("["));
+    }
+
+    #[test]
+    fn test_1d_matrix_display() {
+        let m = Matrix::<i32>::try_from_nested(vec![1, 2, 3, 4]).unwrap();
+        let s = format!("{}", m);
+        assert_eq!(s, "[1, 2, 3, 4]");
+    }
+
+    #[test]
+    fn test_2d_matrix_display() {
+        let m = Matrix::<i32>::try_from_nested(vec![vec![1, 2], vec![3, 4]]).unwrap();
+        let s = format!("{}", m);
+        assert_eq!(s, "[[1, 2],\n [3, 4]]");
+    }
+
+    #[test]
+    fn test_empty_matrix_display() {
+        // Create a truly empty matrix with 0-length dimension
+        let m = Matrix::<i32>::try_from_nested(Vec::<i32>::new()).unwrap();
+        let s = format!("{}", m);
+        assert_eq!(s, "[]");
+    }
+
+    #[test]
+    fn test_matrix_from_vector_examples() {
+        // Test different ways to create matrices from vectors
+        let v = Vector::from(vec![1, 2, 3, 4, 5, 6]);
+
+        // Create 1D matrix
+        let m1d = Matrix::from_vector_1d(v.clone());
+        assert_eq!(m1d.dims(), &[6]);
+        assert_eq!(format!("{}", m1d), "[1, 2, 3, 4, 5, 6]");
+
+        // Create row matrix (1x6)
+        let m_row = Matrix::from_vector_row(v.clone());
+        assert_eq!(m_row.dims(), &[1, 6]);
+        assert_eq!(format!("{}", m_row), "[[1, 2, 3, 4, 5, 6]]");
+
+        // Create 2x3 matrix
+        let m2x3 = Matrix::try_from_vector(v.clone(), vec![2, 3]).unwrap();
+        assert_eq!(m2x3.dims(), &[2, 3]);
+        assert_eq!(format!("{}", m2x3), "[[1, 2, 3],\n [4, 5, 6]]");
+
+        // Create 3x2 matrix
+        let m3x2 = Matrix::try_from_vector(v, vec![3, 2]).unwrap();
+        assert_eq!(m3x2.dims(), &[3, 2]);
+        assert_eq!(format!("{}", m3x2), "[[1, 2],\n [3, 4],\n [5, 6]]");
     }
 }
