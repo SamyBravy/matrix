@@ -26,13 +26,13 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 <!-- COVERAGE:PER-FILE-START -->
 | Crate | File | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|------|-------------------|---------------|-----------------|-----------------|
-| Lorenzo | Lorenzo/src/add_sub_scale.rs | 100.00% | 98.20% | 98.61% | 50.00% |
-| Lorenzo | Lorenzo/src/cosine.rs | 100.00% | 97.37% | 98.78% | 50.00% |
-| Lorenzo | Lorenzo/src/cross_prod.rs | 100.00% | 100.00% | 100.00% | 75.00% |
-| Lorenzo | Lorenzo/src/dot_prod.rs | 100.00% | 98.65% | 98.72% | 50.00% |
+| Lorenzo | Lorenzo/src/add_sub_scale.rs | 100.00% | 100.00% | 100.00% | 100.00% |
+| Lorenzo | Lorenzo/src/cosine.rs | 100.00% | 100.00% | 100.00% | 100.00% |
+| Lorenzo | Lorenzo/src/cross_prod.rs | 100.00% | 100.00% | 100.00% | 100.00% |
+| Lorenzo | Lorenzo/src/dot_prod.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Lorenzo | Lorenzo/src/linear_combo.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Lorenzo | Lorenzo/src/linear_inter.rs | 100.00% | 100.00% | 100.00% | 100.00% |
-| Lorenzo | Lorenzo/src/linear_map.rs | 95.83% | 91.35% | 93.84% | 50.00% |
+| Lorenzo | Lorenzo/src/linear_map.rs | 97.14% | 95.64% | 97.28% | 70.83% |
 | Lorenzo | Lorenzo/src/main.rs | 70.00% | 23.59% | 26.33% | — |
 | Lorenzo | Lorenzo/src/my_mat.rs | 75.00% | 84.63% | 88.54% | 81.25% |
 | Lorenzo | Lorenzo/src/my_vect.rs | 66.67% | 58.67% | 44.86% | — |
@@ -44,7 +44,7 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 <!-- COVERAGE:CRATE-START -->
 | Crate | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|-------------------|---------------|-----------------|-----------------|
-| Lorenzo | 87.77% | 78.58% | 79.64% | 69.51% |
+| Lorenzo | 88.83% | 80.65% | 81.50% | 84.15% |
 | Samuele | 0.00% | 0.00% | 0.00% | — |
 <!-- COVERAGE:CRATE-END -->
 
@@ -52,7 +52,7 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 <!-- COVERAGE:WORKSPACE-START -->
 | Scope | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|-------------------|---------------|-----------------|-----------------|
-| Workspace | 87.30% | 78.45% | 79.55% | 69.51% |
+| Workspace | 88.41% | 80.51% | 81.41% | 84.15% |
 <!-- COVERAGE:WORKSPACE-END -->
 
 
