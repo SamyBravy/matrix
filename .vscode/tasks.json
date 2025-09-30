@@ -11,9 +11,9 @@
       "detail": "Installs llvm-tools and cargo-llvm-cov if not already present"
     },
   {
-      "label": "Test with coverage (html)",
-      "type": "shell",
-      "command": "cargo llvm-cov --workspace --html --open",
+    "label": "Test with coverage (html)",
+    "type": "shell",
+  "command": "cargo +nightly llvm-cov --workspace --branch --html --open",
       "problemMatcher": [],
       "group": { "kind": "test", "isDefault": true },
       "dependsOn": ["Install coverage tool (cargo-llvm-cov)"],
@@ -21,9 +21,9 @@
       "detail": "Run full workspace tests and open HTML coverage report"
     },
   {
-      "label": "Test with coverage (lcov)",
-      "type": "shell",
-      "command": "cargo llvm-cov --workspace --lcov --output-path lcov.info",
+    "label": "Test with coverage (lcov)",
+    "type": "shell",
+  "command": "cargo +nightly llvm-cov --workspace --branch --lcov --output-path lcov.info",
       "problemMatcher": [],
       "group": "test",
       "dependsOn": ["Install coverage tool (cargo-llvm-cov)"],

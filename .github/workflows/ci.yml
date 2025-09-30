@@ -31,15 +31,16 @@ jobs:
       - name: Install coverage tool
         run: |
           rustup component add llvm-tools-preview
+          rustup toolchain install nightly --component llvm-tools-preview
           cargo install cargo-llvm-cov --locked || echo "already installed"
 
       - name: Test with coverage
         run: |
-          cargo llvm-cov --workspace --lcov --output-path lcov.info
+          cargo +nightly llvm-cov --workspace --branch --lcov --output-path lcov.info
 
       - name: Coverage summary (JSON)
         run: |
-          cargo llvm-cov report --json --summary-only --output-path coverage-summary.json
+          cargo +nightly llvm-cov report --branch --json --summary-only --output-path coverage-summary.json
 
       # - name: Enforce coverage threshold (80%)
       #   run: |

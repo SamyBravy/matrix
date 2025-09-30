@@ -55,7 +55,8 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 | Workspace | 87.30% | 78.45% | 79.55% | — |
 <!-- COVERAGE:WORKSPACE-END -->
 
-(Branches may show `—` when LLVM emits no branch counters. Enable branch instrumentation for detailed branch stats.)
+
+Branch coverage is captured using `cargo +nightly llvm-cov --branch`, so the Branch column reflects real execution percentages (nightly toolchain required).
 
 ### Workspace badges
 <!-- COVERAGE:BADGES-START -->
@@ -70,16 +71,16 @@ CI regenerates `lcov.info`, `coverage.svg`, and (future) can patch this README a
 
 ```bash
 # HTML report (opens browser)
-cargo llvm-cov --workspace --html --open
+cargo +nightly llvm-cov --workspace --branch --html --open
 
 # LCOV file (for VS Code Coverage Gutters)
-cargo llvm-cov --workspace --lcov --output-path lcov.info
+cargo +nightly llvm-cov --workspace --branch --lcov --output-path lcov.info
 
 # Summary text
-cargo llvm-cov --workspace --summary-only
+cargo +nightly llvm-cov --workspace --branch --summary-only
 
 # JSON for tooling
-tool="coverage-summary.json"; cargo llvm-cov --workspace --summary-only --json --output-path "$tool"; cat "$tool"
+tool="coverage-summary.json"; cargo +nightly llvm-cov --workspace --branch --summary-only --json --output-path "$tool"; cat "$tool"
 ```
 
 ## Enforce Minimum Coverage
