@@ -76,11 +76,6 @@ where
 /// Let B have shape [K, b1, b2, ..., b_{q-1}]
 /// Result has shape [a0, a1, ..., a_{p-2}, b1, b2, ..., b_{q-1}]
 ///
-/// Constraints:
-/// - A and B must each have at least 1 dimension (last of A matches first of B).
-/// - The contracted dimension K = A.shape[last] = B.shape[0].
-/// - No additional broadcasting; all "batch" dims (a0..a_{p-2}) stay intact.
-///
 /// This reduces to classic 2-D matmul when A and B are both rank-2.
 /// Complexity: O(prod(result_shape) * K)
 impl<K> Mul<Matrix<K>> for Matrix<K>

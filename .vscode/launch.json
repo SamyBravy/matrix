@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Lorenzo tests",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/target/debug/Lorenzo",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Test (no coverage)",
+      "env": {}
+    }
+  ]
+}

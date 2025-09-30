@@ -1,0 +1,72 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+  {
+      "label": "Install coverage tool (cargo-llvm-cov)",
+      "type": "shell",
+      "command": "rustup component add llvm-tools-preview && cargo install cargo-llvm-cov",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Installs llvm-tools and cargo-llvm-cov if not already present"
+    },
+  {
+      "label": "Test with coverage (html)",
+      "type": "shell",
+      "command": "cargo llvm-cov --workspace --html --open",
+      "problemMatcher": [],
+      "group": { "kind": "test", "isDefault": true },
+      "dependsOn": ["Install coverage tool (cargo-llvm-cov)"],
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Run full workspace tests and open HTML coverage report"
+    },
+  {
+      "label": "Test with coverage (lcov)",
+      "type": "shell",
+      "command": "cargo llvm-cov --workspace --lcov --output-path lcov.info",
+      "problemMatcher": [],
+      "group": "test",
+      "dependsOn": ["Install coverage tool (cargo-llvm-cov)"],
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Generate lcov.info for VS Code coverage extensions"
+    },
+    {
+      "label": "Clean coverage data",
+      "type": "shell",
+      "command": "cargo llvm-cov clean --workspace",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Remove cached profiling data"
+    },
+    {
+      "label": "Coverage Badge",
+      "type": "shell",
+      "command": "bash scripts/coverage_badge.sh lcov.info coverage.svg",
+      "problemMatcher": [],
+      "group": "none",
+      "dependsOn": ["Test with coverage (lcov)"],
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Generate SVG coverage badge from lcov.info"
+    },
+    {
+      "label": "Enforce Coverage >=80%",
+      "type": "shell",
+      "command": "bash scripts/enforce_coverage.sh 80 lcov.info",
+      "problemMatcher": [],
+      "group": "test",
+      "dependsOn": ["Test with coverage (lcov)"],
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Fail if coverage below 80%"
+    },
+    {
+      "label": "Test (no coverage)",
+      "type": "shell",
+      "command": "cargo test --workspace",
+      "problemMatcher": [],
+      "group": { "kind": "test" },
+      "presentation": {"reveal": "always", "panel": "shared"},
+      "detail": "Regular cargo test run without coverage"
+    }
+  ]
+}
