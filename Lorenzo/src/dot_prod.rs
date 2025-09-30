@@ -143,4 +143,15 @@ mod tests {
         let v = Vector::from(vec![3.0f64, 4.0f64, 5.0f64]);
         u.dot(&v);
     }
+
+    #[test]
+    #[should_panic(expected = "Vectors must have the same length")]
+    fn test_dot_product_complex_different_lengths() {
+        let u = Vector::from(vec![Complex::new(1.0f32, 2.0f32)]);
+        let v = Vector::from(vec![
+            Complex::new(3.0f32, 4.0f32),
+            Complex::new(5.0f32, 6.0f32),
+        ]);
+        u.dot(&v);
+    }
 }

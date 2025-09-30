@@ -44,4 +44,12 @@ mod tests {
         let v = Vector::from(vec![3, 4]);
         let _ = cross_product(&u, &v);
     }
+
+    #[test]
+    #[should_panic(expected = "Cross product is only defined for 3-dimensional vectors")]
+    fn cross_product_bad_second_operand_dim() {
+        let u = Vector::from(vec![1, 2, 3]);
+        let v = Vector::from(vec![4, 5]);
+        let _ = cross_product(&u, &v);
+    }
 }

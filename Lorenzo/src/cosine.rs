@@ -58,4 +58,12 @@ mod tests {
         let cos_angle = angle_cos(&u, &v);
         assert!(approx_eq(cos_angle, 0.0)); // perpendicular complex vectors
     }
+
+    #[test]
+    fn test_angle_cos_zero_vector_returns_zero() {
+        let u = Vector::from(vec![0.0f64, 0.0f64]);
+        let v = Vector::from(vec![5.0f64, -7.5f64]);
+        let cos_angle = angle_cos(&u, &v);
+        assert!(approx_eq(cos_angle, 0.0));
+    }
 }

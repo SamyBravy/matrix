@@ -467,4 +467,92 @@ mod tests {
         let s = m.dot_vector(&v);
         assert_eq!(s, 32); // 1*4 + 2*5 + 3*6
     }
+
+    #[test]
+    #[should_panic(expected = "dot_vector requires a rank-1 matrix")]
+    fn dot_vector_requires_rank1_matrix() {
+        let m = Matrix::from_nested_unchecked(vec![vec![1, 2], vec![3, 4]]); // shape [2,2]
+        let v = Vector::from(vec![1, 2, 3, 4]);
+        let _ = m.dot_vector(&v);
+    }
+
+    #[test]
+    #[should_panic(expected = "Length mismatch")]
+    fn dot_vector_length_mismatch_panics() {
+        let m = Matrix::from_nested_unchecked(vec![1, 2, 3]); // shape [3]
+        let v = Vector::from(vec![4, 5]);
+        let _ = m.dot_vector(&v);
+    }
+
+    #[test]
+    #[should_panic(expected = "Matrix must have rank >= 1 for matXvec")]
+    fn mat_vec_requires_rank_at_least_one() {
+        let a = Matrix::new(vec![42], vec![]); // scalar (rank 0)
+        let v = Vector::from(vec![1]);
+        let _ = a * v;
+    }
+
+    #[test]
+    #[should_panic(expected = "Matrix must have rank >= 1 for matXvec")]
+    fn borrowed_mat_vec_requires_rank_at_least_one() {
+        let a = Matrix::new(vec![42], vec![]);
+        let v = Vector::from(vec![1]);
+        let _ = (&a) * (&v);
+    }
+
+    #[test]
+    #[should_panic(expected = "Last dimension")]
+    fn mat_vec_length_mismatch_panics() {
+        let a = Matrix::from_nested_unchecked(vec![vec![1, 2], vec![3, 4]]); // shape [2,2]
+        let v = Vector::from(vec![1, 2, 3]);
+        let _ = a * v;
+    }
+
+    #[test]
+    #[should_panic(expected = "Last dimension")]
+    fn borrowed_mat_vec_length_mismatch_panics() {
+        let a = Matrix::from_nested_unchecked(vec![vec![1, 2], vec![3, 4]]);
+        let v = Vector::from(vec![1, 2, 3]);
+        let _ = (&a) * (&v);
+    }
+
+    #[test]
+    #[should_panic(expected = "Rank-1 (vector) X vector would yield a scalar")]
+    fn mat_vec_rank1_panics() {
+        let a = Matrix::from_nested_unchecked(vec![1, 2, 3]);
+        let v = Vector::from(vec![1, 2, 3]);
+        let _ = a * v;
+    }
+
+    #[test]
+    #[should_panic(expected = "Rank-1 (vector) X vector would yield a scalar")]
+    fn borrowed_mat_vec_rank1_panics() {
+        let a = Matrix::from_nested_unchecked(vec![1, 2, 3]);
+        let v = Vector::from(vec![1, 2, 3]);
+        let _ = (&a) * (&v);
+    }
+
+    #[test]
+    #[should_panic(expected = "Rank-1 X Rank-1 would produce a scalar")]
+    fn matmul_rank1_by_rank1_panics() {
+        let a = Matrix::from_nested_unchecked(vec![1, 2, 3]);
+        let b = Matrix::from_nested_unchecked(vec![4, 5, 6]);
+        let _ = a * b;
+    }
+
+    #[test]
+    #[should_panic(expected = "Rank-1 X Rank-1 would produce a scalar")]
+    fn borrowed_matmul_rank1_by_rank1_panics() {
+        let a = Matrix::from_nested_unchecked(vec![1, 2, 3]);
+        let b = Matrix::from_nested_unchecked(vec![4, 5, 6]);
+        let _ = (&a) * (&b);
+    }
+
+    #[test]
+    #[should_panic(expected = "Both operands must have rank >= 1")]
+    fn matmul_zero_rank_operands_panic() {
+        let a = Matrix::new(vec![1], vec![]); // scalar
+        let b = Matrix::new(vec![2], vec![]);
+        let _ = a * b;
+    }
 }

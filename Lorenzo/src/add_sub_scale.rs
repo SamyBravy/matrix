@@ -352,4 +352,36 @@ mod tests {
             expected.linear_iter().cloned().collect::<Vec<_>>()
         );
     }
+
+    #[test]
+    #[should_panic(expected = "Matrix addition only supports same shape matrices")]
+    fn matrix_add_mismatched_shape_panics() {
+        let a = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
+        let b = Matrix::try_from_nested(vec![vec![1.0, 2.0, 3.0]]).unwrap();
+        let _ = a.add(b);
+    }
+
+    #[test]
+    #[should_panic(expected = "Matrix addition only supports same shape matrices")]
+    fn matrix_add_assign_mismatched_shape_panics() {
+        let mut a = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
+        let b = Matrix::try_from_nested(vec![vec![1.0, 2.0, 3.0]]).unwrap();
+        a += b;
+    }
+
+    #[test]
+    #[should_panic(expected = "Matrix subtraction only supports same shape matrices")]
+    fn matrix_sub_mismatched_shape_panics() {
+        let a = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
+        let b = Matrix::try_from_nested(vec![vec![1.0, 2.0, 3.0]]).unwrap();
+        let _ = a.sub(b);
+    }
+
+    #[test]
+    #[should_panic(expected = "Matrix subtraction only supports same shape matrices")]
+    fn matrix_sub_assign_mismatched_shape_panics() {
+        let mut a = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![3.0, 4.0]]).unwrap();
+        let b = Matrix::try_from_nested(vec![vec![1.0, 2.0, 3.0]]).unwrap();
+        a -= b;
+    }
 }
