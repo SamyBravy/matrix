@@ -46,6 +46,7 @@ impl<K> Matrix<K> {
             if ind >= self.shape[i] {
                 return None;
             }
+						println!("ind: {}, stride: {}", ind, self.strides[i]);
             idx += ind * self.strides[i];
         }
         Some(idx)
@@ -69,6 +70,17 @@ impl<K> Matrix<K> {
     /// Returns the total number of elements in the matrix.
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn is_square(&self) -> bool {
+        self.shape.len() == 2 && self.shape[0] == self.shape[1]
+    }
+
+    pub fn data_clone(&self) -> Vec<K>
+    where
+        K: Clone,
+    {
+        self.data.clone()
     }
 
     /// Helper method for formatting n-dimensional matrices recursively
@@ -130,6 +142,7 @@ fn compute_strides(shape: &[usize]) -> Vec<usize> {
         strides[i] = acc;
         acc = acc.saturating_mul(shape[i]);
     }
+		println!("strides: {:?}", strides);
     strides
 }
 use std::ops::{Index, IndexMut};
@@ -418,27 +431,27 @@ where
     }
 }
 
-impl <'a, K> IntoIterator for &'a Matrix<K>
+impl<'a, K> IntoIterator for &'a Matrix<K>
 where
-		K: Clone,
+    K: Clone,
 {
-		type Item = &'a K;
-		type IntoIter = std::slice::Iter<'a, K>;
+    type Item = &'a K;
+    type IntoIter = std::slice::Iter<'a, K>;
 
-		fn into_iter(self) -> Self::IntoIter {
-				self.data.iter()
-		}
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.iter()
+    }
 }
-impl <'a, K> IntoIterator for &'a mut Matrix<K>
+impl<'a, K> IntoIterator for &'a mut Matrix<K>
 where
-		K: Clone,
+    K: Clone,
 {
-		type Item = &'a mut K;
-		type IntoIter = std::slice::IterMut<'a, K>;
+    type Item = &'a mut K;
+    type IntoIter = std::slice::IterMut<'a, K>;
 
-		fn into_iter(self) -> Self::IntoIter {
-				self.data.iter_mut()
-		}
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.iter_mut()
+    }
 }
 
 // impl<'a,K> IntoIterator for &'a mut Matrix<K>
@@ -451,7 +464,7 @@ where
 // 		fn into_iter(self) -> Self::IntoIter {
 // 				self.data.into_iter()
 // 		}
-		
+
 // }
 
 // TESTS
