@@ -1,10 +1,12 @@
 # Matrix Workspace
 
 Monorepo with two Rust crates:
+
 - **Lorenzo**: Generic N-D matrix & vector algebra (construction, arithmetic, linear combination, interpolation, dot / Hermitian dot, norms, cosine similarity, cross product (3D), generalized matrix×matrix and matrix×vector contraction, rank‑1 scalar contraction).
 - **Samuele**: (currently empty logic / example placeholder) – shows zero coverage until tests are added.
 
 ## Features (Lorenzo)
+
 - Vector & N-D matrix with flat storage + shape/strides
 - Nested construction (`try_from_nested`), unchecked variant for tests
 - Add / Sub / Scale for vectors & matrices (owned + assign variants)
@@ -54,7 +56,6 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 |-------|-------------------|---------------|-----------------|-----------------|
 | Workspace | 88.41% | 80.51% | 81.41% | 84.15% |
 <!-- COVERAGE:WORKSPACE-END -->
-
 
 Branch coverage is captured using `cargo +nightly llvm-cov --branch`, so the Branch column reflects real execution percentages (nightly toolchain required).
 

@@ -8,10 +8,15 @@ mod linear_map;
 mod my_mat;
 mod my_vect;
 mod norm;
+mod row_echelon;
+mod trace;
+mod transpose;
+use std::process::exit;
+
+use crate::add_sub_scale::Scale;
 use crate::my_mat::Matrix;
 use crate::my_vect::Vector;
 use crate::norm::Norms;
-use crate::add_sub_scale::Scale;
 use num_complex::Complex;
 
 // ANSI colors
@@ -32,6 +37,12 @@ fn sub(label: &str) {
 }
 
 fn main() {
+    let mymat = Matrix::<i32>::try_from_nested(vec![vec![1, 2], vec![3, 4], vec![5, 6]]).unwrap();
+    println!(
+        "{YELLOW}idx on matrix {mymat} \n: {:?}{RESET}",
+        mymat.get(&[0, 0])
+    );
+    exit(0);
     // -------------- Addition / Subtraction / Scaling --------------
     header("Vector Arithmetic (Add / Sub / Scale)");
     sub("2D vectors");
@@ -116,7 +127,9 @@ fn main() {
     );
     println!("{GREEN}midpoint = {l4}{RESET}");
     sub("Complex (manual lerp)");
-    println!("{YELLOW}Note:{RESET} Vector<Complex> scaling by f32 not implemented, so we lerp element-wise.");
+    println!(
+        "{YELLOW}Note:{RESET} Vector<Complex> scaling by f32 not implemented, so we lerp element-wise."
+    );
     let c_u = Vector::from(vec![Complex::new(1.0, 2.0), Complex::new(-1.0, 0.5)]);
     let c_v = Vector::from(vec![Complex::new(3.0, -2.0), Complex::new(0.0, 1.0)]);
     let t = 0.3f32;
@@ -303,6 +316,49 @@ fn main() {
         "{GREEN}[1,2,3,4] · [5,6,7,8] = {}{RESET}",
         r1.dot_vector(&rv)
     );
+
+    // -------------- Trace (Diagonal Sum) --------------
+    header("Trace (Diagonal Sum)");
+    sub("2x2 real");
+    let t2 = Matrix::try_from_nested(vec![vec![1, 2], vec![3, 4]]).unwrap();
+    println!("{BLUE}M = {t2}{RESET}");
+    println!("{GREEN}trace = {}{RESET}", t2.trace());
+
+    sub("3x3 real");
+    let t3 = Matrix::try_from_nested(vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]]).unwrap();
+    println!("{BLUE}M = {t3}{RESET}");
+    println!("{GREEN}trace = {}{RESET}", t3.trace());
+
+    sub("3x3x3 cubic (3D)");
+    let t3d = Matrix::new(
+        vec![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27,
+        ],
+        vec![3, 3, 3],
+    );
+    println!("{BLUE}3D cubic matrix [3,3,3]{RESET}");
+    println!(
+        "{GREEN}trace = {} (sum of [0,0,0], [1,1,1], [2,2,2]){RESET}",
+        t3d.trace()
+    );
+
+    sub("2x2x2x2 hypercube (4D)");
+    let t4d = Matrix::new((0..16).collect(), vec![2, 2, 2, 2]);
+    println!("{BLUE}4D hypercube [2,2,2,2]{RESET}");
+    println!(
+        "{GREEN}trace = {} (sum of [0,0,0,0], [1,1,1,1]){RESET}",
+        t4d.trace()
+    );
+
+    sub("Complex 2x2");
+    let tc = Matrix::try_from_nested(vec![
+        vec![Complex::new(1.0, 2.0), Complex::new(3.0, 4.0)],
+        vec![Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)],
+    ])
+    .unwrap();
+    println!("{BLUE}C = {tc}{RESET}");
+    println!("{GREEN}trace = {}{RESET}", tc.trace());
 }
 
 // Unit tests and small examples exercised via `cargo test`.
@@ -405,5 +461,90 @@ mod tests {
         let v = Vector::from(vec![Complex::new(3.0f32, 4.0f32)]);
         let n2 = v.norm_2();
         assert!(approx_eq_f32(n2, 5.0));
+    }
+
+    #[test]
+    fn dot_product_examples_match_main() {
+        let d2a = Vector::from(vec![1.0, 2.0]);
+        let d2b = Vector::from(vec![3.0, 4.0]);
+        assert_eq!(Vector::<f64>::dot(&d2a, &d2b), 11.0);
+
+        let d4a = Vector::from(vec![1.0, 0.0, -1.0, 2.0]);
+        let d4b = Vector::from(vec![2.0, -1.0, 4.0, 0.5]);
+        assert_eq!(Vector::<f64>::dot(&d4a, &d4b), -1.0);
+
+        let dc1 = Vector::from(vec![Complex::new(1.0f32, 2.0), Complex::new(0.0, -1.0)]);
+        let dc2 = Vector::from(vec![Complex::new(3.0f32, -4.0), Complex::new(0.5, 2.0)]);
+        let expected = Complex::new(-7.0f32, -9.5);
+        assert_eq!(dc1.dot(&dc2), expected);
+    }
+
+    #[test]
+    fn matrix_multiplication_example_matches_main() {
+        let mm_a = Matrix::try_from_nested(vec![vec![1, 2, 3], vec![4, 5, 6]]).unwrap();
+        let mm_b = Matrix::try_from_nested(vec![vec![7, 8], vec![9, 10], vec![11, 12]]).unwrap();
+        let product = mm_a * mm_b;
+        assert_eq!(product.dims(), &[2, 2]);
+        let values: Vec<_> = product.linear_iter().cloned().collect();
+        assert_eq!(values, vec![58, 64, 139, 154]);
+    }
+
+    #[test]
+    fn matrix_vector_example_matches_main() {
+        let mv_a = Matrix::try_from_nested(vec![vec![1, 2, 3], vec![4, 5, 6]]).unwrap();
+        let mv_v = Vector::from(vec![1, 0, -1]);
+        let result = mv_a * mv_v;
+        let values: Vec<_> = result.into_vec();
+        assert_eq!(values, vec![-2, -2]);
+    }
+
+    #[test]
+    fn cross_product_example_matches_main() {
+        let x_u = Vector::from(vec![1.0, 2.0, 3.0]);
+        let x_v = Vector::from(vec![4.0, 5.0, 6.0]);
+        let cross = crate::cross_prod::cross_product(&x_u, &x_v);
+        let values: Vec<_> = cross.into_vec();
+        assert_eq!(values, vec![-3.0, 6.0, -3.0]);
+    }
+
+    #[test]
+    fn rank1_matrix_dot_example_matches_main() {
+        let r1 = Matrix::from_nested_unchecked(vec![1, 2, 3, 4]);
+        let rv = Vector::from(vec![5, 6, 7, 8]);
+        assert_eq!(r1.dot_vector(&rv), 70);
+    }
+
+    #[test]
+    fn trace_examples_match_main() {
+        // 2x2 trace
+        let t2 = Matrix::try_from_nested(vec![vec![1, 2], vec![3, 4]]).unwrap();
+        assert_eq!(t2.trace(), 1 + 4);
+
+        // 3x3 trace
+        let t3 =
+            Matrix::try_from_nested(vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]]).unwrap();
+        assert_eq!(t3.trace(), 1 + 5 + 9);
+
+        // 3x3x3 cubic trace
+        let t3d = Matrix::new(
+            vec![
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25, 26, 27,
+            ],
+            vec![3, 3, 3],
+        );
+        assert_eq!(t3d.trace(), 1 + 14 + 27);
+
+        // 2x2x2x2 hypercube trace
+        let t4d = Matrix::new((0..16).collect(), vec![2, 2, 2, 2]);
+        assert_eq!(t4d.trace(), 0 + 15);
+
+        // Complex trace
+        let tc = Matrix::try_from_nested(vec![
+            vec![Complex::new(1.0, 2.0), Complex::new(3.0, 4.0)],
+            vec![Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)],
+        ])
+        .unwrap();
+        assert_eq!(tc.trace(), Complex::new(8.0, 10.0));
     }
 }
