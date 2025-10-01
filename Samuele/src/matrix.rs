@@ -52,11 +52,11 @@ impl<K> Matrix<K> {
         self.shape = new_shape;
     }
 
-    fn print(&self, f: &mut std::fmt::Formatter<'_>, depth: usize) -> std::fmt::Result {
-        if depth == self.shape.len() - 1 {
-            write!("{}", Vector::from(self.data()))
-        }
-    }
+ //   fn print(&self, f: &mut std::fmt::Formatter<'_>, depth: usize) -> std::fmt::Result {
+ //       if depth == self.shape.len() - 1 {
+  //          write!("{}", Vector::from(self.data()))
+//        }
+  //  }
 }
 
 impl<K> Index<&[usize]> for Matrix<K> {
@@ -86,14 +86,14 @@ impl<K> Index<&[usize]> for Matrix<K> {
     }
 }
 
-impl<K> std::fmt::Display for Matrix<K>
-where
-    K: std::fmt::Display,
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.print(f, 0)
-    }
-}
+//impl<K> std::fmt::Display for Matrix<K>
+//where
+ //   K: std::fmt::Display,
+//{
+//    fn fmt(&self, f: &mut // std::fmt::Formatter<'_>) -> std::fmt::Result {
+ //       self.print(f, 0)
+//    }
+//}
 
 impl<K> From<Vector<K>> for Matrix<K> {
     fn from(vect: Vector<K>) -> Self {
