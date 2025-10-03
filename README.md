@@ -35,18 +35,22 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 | Lorenzo | Lorenzo/src/linear_combo.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Lorenzo | Lorenzo/src/linear_inter.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Lorenzo | Lorenzo/src/linear_map.rs | 97.14% | 95.64% | 97.28% | 70.83% |
-| Lorenzo | Lorenzo/src/main.rs | 70.00% | 23.59% | 26.33% | — |
-| Lorenzo | Lorenzo/src/my_mat.rs | 75.00% | 84.63% | 88.54% | 81.25% |
+| Lorenzo | Lorenzo/src/main.rs | 81.25% | 91.43% | 94.34% | — |
+| Lorenzo | Lorenzo/src/my_mat.rs | 73.91% | 84.06% | 88.38% | 81.25% |
 | Lorenzo | Lorenzo/src/my_vect.rs | 66.67% | 58.67% | 44.86% | — |
 | Lorenzo | Lorenzo/src/norm.rs | 95.65% | 95.92% | 96.79% | — |
+| Lorenzo | Lorenzo/src/trace.rs | 100.00% | 100.00% | 100.00% | 100.00% |
+| Lorenzo | Lorenzo/src/transpose.rs | 0.00% | 0.00% | 0.00% | — |
 | Samuele | Samuele/src/main.rs | 0.00% | 0.00% | 0.00% | — |
+| Samuele | Samuele/src/matrix.rs | 0.00% | 0.00% | 0.00% | — |
+| Samuele | Samuele/src/vector.rs | 0.00% | 0.00% | 0.00% | — |
 <!-- COVERAGE:PER-FILE-END -->
 
 ### Per-crate totals
 <!-- COVERAGE:CRATE-START -->
 | Crate | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|-------------------|---------------|-----------------|-----------------|
-| Lorenzo | 88.83% | 80.65% | 81.50% | 84.15% |
+| Lorenzo | 88.84% | 91.95% | 94.05% | 84.52% |
 | Samuele | 0.00% | 0.00% | 0.00% | — |
 <!-- COVERAGE:CRATE-END -->
 
@@ -54,7 +58,7 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 <!-- COVERAGE:WORKSPACE-START -->
 | Scope | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|-------------------|---------------|-----------------|-----------------|
-| Workspace | 88.41% | 80.51% | 81.41% | 84.15% |
+| Workspace | 81.89% | 87.75% | 91.08% | 84.52% |
 <!-- COVERAGE:WORKSPACE-END -->
 
 Branch coverage is captured using `cargo +nightly llvm-cov --branch`, so the Branch column reflects real execution percentages (nightly toolchain required).
