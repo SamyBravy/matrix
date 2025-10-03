@@ -17,6 +17,7 @@ impl<K> Matrix<K> {
                 data.len()
             );
         }
+				Matrix { data, shape }
         
     }
 
@@ -59,32 +60,32 @@ impl<K> Matrix<K> {
   //  }
 }
 
-impl<K> Index<&[usize]> for Matrix<K> {
-    type Output = K;
+// impl<K> Index<&[usize]> for Matrix<K> {
+//     type Output = K;
 
-    fn index(&self, index: &[usize]) -> &Self::Output {
-        if index.len() != self.shape.len() {
-            panic!(
-                "Invalid index: expected a {}-dimensional index but got a {}-dimensional index",
-                self.shape.len(),
-                index.len()
-            );
-        }
-        if !index
-            .iter()
-            .enumerate()
-            .all(|(dim, i)| *i < self.shape[dim])
-        {
-            panic!(
-                "Index out of bounds: the shape is {} but the index is {:?}",
-                self.shape, index
-            );
-        }
+//     fn index(&self, index: &[usize]) -> &Self::Output {
+//         if index.len() != self.shape.len() {
+//             panic!(
+//                 "Invalid index: expected a {}-dimensional index but got a {}-dimensional index",
+//                 self.shape.len(),
+//                 index.len()
+//             );
+//         }
+//         if !index
+//             .iter()
+//             .enumerate()
+//             .all(|(dim, i)| *i < self.shape[dim])
+//         {
+//             panic!(
+//                 "Index out of bounds: the shape is {} but the index is {:?}",
+//                 self.shape, index
+//             );
+//         }
 
-        let idx: usize = 
-        &self.data[idx]
-    }
-}
+//         let idx: usize = 
+//         &self.data[idx]
+//     }
+// }
 
 //impl<K> std::fmt::Display for Matrix<K>
 //where
