@@ -86,6 +86,6 @@ where
     K: Clone,
 {
     fn from(mat: Matrix<K>) -> Self {
-        mat.data().clone()
-    }
+		//
+	}
 }
