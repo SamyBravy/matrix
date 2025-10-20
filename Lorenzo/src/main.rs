@@ -11,7 +11,7 @@ mod norm;
 mod row_echelon;
 mod trace;
 mod transpose;
-use std::process::exit;
+// use std::process::exit;
 
 use crate::add_sub_scale::Scale;
 use crate::my_mat::Matrix;
@@ -37,12 +37,6 @@ fn sub(label: &str) {
 }
 
 fn main() {
-    let mymat = Matrix::<i32>::try_from_nested(vec![vec![1, 2], vec![3, 4], vec![5, 6]]).unwrap();
-    println!(
-        "{YELLOW}idx on matrix {mymat} \n: {:?}{RESET}",
-        mymat.get(&[0, 0])
-    );
-    exit(0);
     // -------------- Addition / Subtraction / Scaling --------------
     header("Vector Arithmetic (Add / Sub / Scale)");
     sub("2D vectors");
