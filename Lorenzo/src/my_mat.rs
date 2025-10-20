@@ -46,7 +46,6 @@ impl<K> Matrix<K> {
             if ind >= self.shape[i] {
                 return None;
             }
-						println!("ind: {}, stride: {}", ind, self.strides[i]);
             idx += ind * self.strides[i];
         }
         Some(idx)
@@ -142,7 +141,6 @@ fn compute_strides(shape: &[usize]) -> Vec<usize> {
         strides[i] = acc;
         acc = acc.saturating_mul(shape[i]);
     }
-		println!("strides: {:?}", strides);
     strides
 }
 use std::ops::{Index, IndexMut};

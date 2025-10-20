@@ -1,6 +1,7 @@
 mod add_sub_scale;
 mod cosine;
 mod cross_prod;
+mod determinant;
 mod dot_prod;
 mod linear_combo;
 mod linear_inter;
@@ -11,7 +12,7 @@ mod norm;
 mod row_echelon;
 mod trace;
 mod transpose;
-// use std::process::exit;
+mod inverse;
 
 use crate::add_sub_scale::Scale;
 use crate::my_mat::Matrix;
@@ -353,6 +354,139 @@ fn main() {
     .unwrap();
     println!("{BLUE}C = {tc}{RESET}");
     println!("{GREEN}trace = {}{RESET}", tc.trace());
+
+    // -------------- Row Echelon Form --------------
+    header("Row Echelon Form (Gaussian Elimination)");
+    sub("3x3 real");
+    let re3 = Matrix::try_from_nested(vec![
+        vec![2.0, 1.0, -1.0],
+        vec![-3.0, -1.0, 2.0],
+        vec![-2.0, 1.0, 2.0],
+    ])
+    .unwrap();
+    println!("{BLUE}Original = {re3}{RESET}");
+    println!("{GREEN}Row Echelon = {}{RESET}", re3.row_echelon().0);
+
+    sub("2x2 real");
+    let re2 = Matrix::try_from_nested(vec![vec![3.0, 2.0], vec![1.0, 4.0]]).unwrap();
+    println!("{BLUE}Original = {re2}{RESET}");
+    println!("{GREEN}Row Echelon = {}{RESET}", re2.row_echelon().0);
+
+    sub("3x4 rectangular");
+    let re_rect = Matrix::try_from_nested(vec![
+        vec![1.0, 2.0, 3.0, 4.0],
+        vec![2.0, 4.0, 7.0, 8.0],
+        vec![3.0, 6.0, 10.0, 13.0],
+    ])
+    .unwrap();
+    println!("{BLUE}Original = {re_rect}{RESET}");
+    println!("{GREEN}Row Echelon = {}{RESET}", re_rect.row_echelon().0);
+
+    sub("Identity matrix (should remain unchanged)");
+    let re_id = Matrix::try_from_nested(vec![
+        vec![1.0, 0.0, 0.0],
+        vec![0.0, 1.0, 0.0],
+        vec![0.0, 0.0, 1.0],
+    ])
+    .unwrap();
+    println!("{BLUE}Original = {re_id}{RESET}");
+    println!("{GREEN}Row Echelon = {}{RESET}", re_id.row_echelon().0);
+
+    // -------------- Determinant examples --------------
+    header("Determinant");
+    sub("2x2 integer");
+    let d2 = Matrix::try_from_nested(vec![vec![1, 2], vec![3, 4]]).unwrap();
+    println!("{BLUE}M = {d2}{RESET}");
+    println!("{GREEN}det = {}{RESET}", d2.determinant());
+
+    sub("3x3 integer");
+    let d3 = Matrix::try_from_nested(vec![vec![6, 1, 1], vec![4, -2, 5], vec![2, 8, 7]]).unwrap();
+    println!("{BLUE}M = {d3}{RESET}");
+    println!("{GREEN}det = {}{RESET}", d3.determinant());
+
+    sub("2x2 complex");
+    let dc = Matrix::try_from_nested(vec![
+        vec![Complex::new(1.0, 2.0), Complex::new(3.0, 4.0)],
+        vec![Complex::new(5.0, 6.0), Complex::new(7.0, 8.0)],
+    ])
+    .unwrap();
+    println!("{BLUE}C = {dc}{RESET}");
+    println!("{GREEN}det = {}{RESET}", dc.determinant());
+
+    // -------------- Matrix Inverse --------------
+    header("Matrix Inverse");
+    sub("2x2 float");
+    let m2 = Matrix::try_from_nested(vec![vec![4.0, 7.0], vec![2.0, 6.0]]).unwrap();
+    println!("{BLUE}M = {m2}{RESET}");
+    if let Some(inv2) = m2.inverse() {
+        // Format inverse nicely
+        println!("{GREEN}M^(-1) = [{RESET}");
+        for i in 0..2 {
+            print!("{GREEN} [{RESET}");
+            for j in 0..2 {
+                let val: f64 = *inv2.get(&[i, j]).unwrap();
+                if j > 0 { print!(", "); }
+                print!("{:.4}", val);
+            }
+            println!("{GREEN}]{RESET}");
+        }
+        println!("{GREEN}]{RESET}");
+        
+        // Verify: M * M^(-1) = I
+        let product = &m2 * &inv2;
+        println!("{YELLOW}M * M^(-1) ≈ [{RESET}");
+        for i in 0..2 {
+            print!("{YELLOW} [{RESET}");
+            for j in 0..2 {
+                let val: f64 = *product.get(&[i, j]).unwrap();
+                if j > 0 { print!(", "); }
+                print!("{:.4}", val);
+            }
+            println!("{YELLOW}]{RESET}");
+        }
+        println!("{YELLOW}]{RESET}");
+    }
+
+    sub("3x3 float");
+    let m3 = Matrix::try_from_nested(vec![
+        vec![1.0, 2.0, 3.0],
+        vec![0.0, 1.0, 4.0],
+        vec![5.0, 6.0, 0.0],
+    ])
+    .unwrap();
+    println!("{BLUE}M = {m3}{RESET}");
+    if let Some(inv3) = m3.inverse() {
+        println!("{GREEN}M^(-1) = [{RESET}");
+        for i in 0..3 {
+            print!("{GREEN} [{RESET}");
+            for j in 0..3 {
+                let val: f64 = *inv3.get(&[i, j]).unwrap();
+                if j > 0 { print!(", "); }
+                print!("{:6.2}", val);
+            }
+            println!("{GREEN}]{RESET}");
+        }
+        println!("{GREEN}]{RESET}");
+    }
+
+    sub("Singular matrix (no inverse)");
+    let singular = Matrix::try_from_nested(vec![vec![1.0, 2.0], vec![2.0, 4.0]]).unwrap();
+    println!("{BLUE}M (singular) = {singular}{RESET}");
+    match singular.inverse() {
+        Some(_) => println!("{GREEN}M^(-1) exists{RESET}"),
+        None => println!("{RED}M^(-1) does not exist (det = 0){RESET}"),
+    }
+
+    sub("2x2 complex");
+    let mc = Matrix::try_from_nested(vec![
+        vec![Complex::new(1.0, 1.0), Complex::new(0.0, 1.0)],
+        vec![Complex::new(1.0, 0.0), Complex::new(1.0, 1.0)],
+    ])
+    .unwrap();
+    println!("{BLUE}M = {mc}{RESET}");
+    if let Some(invc) = mc.inverse() {
+        println!("{GREEN}M^(-1) = {invc}{RESET}");
+    }
 }
 
 // Unit tests and small examples exercised via `cargo test`.
@@ -540,5 +674,42 @@ mod tests {
         ])
         .unwrap();
         assert_eq!(tc.trace(), Complex::new(8.0, 10.0));
+    }
+
+    #[test]
+    fn row_echelon_examples_match_main() {
+        // 3x3 matrix
+        let re3 = Matrix::try_from_nested(vec![
+            vec![2.0, 1.0, -1.0],
+            vec![-3.0, -1.0, 2.0],
+            vec![-2.0, 1.0, 2.0],
+        ])
+        .unwrap();
+        let result = re3.row_echelon().0;
+
+        // Should produce upper triangular form
+        assert_eq!(result.dims(), &[3, 3]);
+        assert_ne!(result.get(&[0, 0]), Some(&0.0));
+
+        // Below diagonal should be zero (with floating point tolerance)
+        let val: f64 = *result.get(&[1, 0]).unwrap();
+        assert!(val.abs() < 1e-10);
+
+        // 2x2 matrix
+        let re2 = Matrix::try_from_nested(vec![vec![3.0, 2.0], vec![1.0, 4.0]]).unwrap();
+        let result2 = re2.row_echelon().0;
+        assert_eq!(result2.dims(), &[2, 2]);
+
+        // Identity should remain unchanged
+        let id = Matrix::try_from_nested(vec![
+            vec![1.0, 0.0, 0.0],
+            vec![0.0, 1.0, 0.0],
+            vec![0.0, 0.0, 1.0],
+        ])
+        .unwrap();
+        let result_id = id.row_echelon().0;
+        assert_eq!(result_id.get(&[0, 0]), Some(&1.0));
+        assert_eq!(result_id.get(&[1, 1]), Some(&1.0));
+        assert_eq!(result_id.get(&[2, 2]), Some(&1.0));
     }
 }

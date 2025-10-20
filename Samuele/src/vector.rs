@@ -81,11 +81,11 @@ where
     }
 }
 
-impl<K> From<Matrix<K>> for Vector<K>
-where
-    K: Clone,
-{
-    fn from(mat: Matrix<K>) -> Self {
-		//
-	}
-}
+// impl<K> From<Matrix<K>> for Vector<K>
+// where
+//     K: Clone,
+// {
+//     fn from(mat: Matrix<K>) -> Self {
+// 		//
+// 	}
+// }

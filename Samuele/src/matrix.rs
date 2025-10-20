@@ -8,18 +8,18 @@ pub struct Matrix<K> {
 }
 
 impl<K> Matrix<K> {
-    pub fn new(data: Vector<K>, shape: Vector<usize>) -> Self {
-        let expected_size: usize = shape.iter().product();
-        if data.len() != expected_size {
-            panic!(
-                "Data length does not match shape: expected {} but got {}",
-                expected_size,
-                data.len()
-            );
-        }
+    // pub fn new(data: Vector<K>, shape: Vector<usize>) -> Self {
+    //     let expected_size: usize = shape.iter().product();
+    //     if data.len() != expected_size {
+    //         panic!(
+    //             "Data length does not match shape: expected {} but got {}",
+    //             expected_size,
+    //             data.len()
+    //         );
+    //     }
 
-		//
-    }
+		// //
+    // }
 
     pub fn len(&self) -> usize {
         self.data.len()
@@ -37,48 +37,48 @@ impl<K> Matrix<K> {
         &self.data
     }
 
-    fn print(&self, f: &mut std::fmt::Formatter<'_>, depth: usize) -> std::fmt::Result {
-        //
-    }
+    // fn print(&self, f: &mut std::fmt::Formatter<'_>, depth: usize) -> std::fmt::Result {
+    //     //
+    // }
 }
 
-impl<K> Index<&[usize]> for Matrix<K> {
-    type Output = K;
+// impl<K> Index<&[usize]> for Matrix<K> {
+//     type Output = K;
 
-    fn index(&self, index: &[usize]) -> &Self::Output {
-        if index.len() != self.shape.len() {
-            panic!(
-                "Invalid index: expected a {}-dimensional index but got a {}-dimensional index",
-                self.shape.len(),
-                index.len()
-            );
-        }
-        if !index
-            .iter()
-            .enumerate()
-            .all(|(dim, i)| *i < self.shape[dim])
-        {
-            panic!(
-                "Index out of bounds: the shape is {} but the index is {:?}",
-                self.shape, index
-            );
-        }
+//     fn index(&self, index: &[usize]) -> &Self::Output {
+//         if index.len() != self.shape.len() {
+//             panic!(
+//                 "Invalid index: expected a {}-dimensional index but got a {}-dimensional index",
+//                 self.shape.len(),
+//                 index.len()
+//             );
+//         }
+//         if !index
+//             .iter()
+//             .enumerate()
+//             .all(|(dim, i)| *i < self.shape[dim])
+//         {
+//             panic!(
+//                 "Index out of bounds: the shape is {} but the index is {:?}",
+//                 self.shape, index
+//             );
+//         }
 
-        //
-    }
-}
+//         //
+//     }
+// }
 
-impl<K> std::fmt::Display for Matrix<K>
-where
-    K: std::fmt::Display,
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.print(f, 0)
-    }
-}
+// impl<K> std::fmt::Display for Matrix<K>
+// where
+//     K: std::fmt::Display,
+// {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         self.print(f, 0)
+//     }
+// }
 
-impl<K> From<Vector<K>> for Matrix<K> {
-    fn from(vect: Vector<K>) -> Self {
-        //
-    }
-}
+// impl<K> From<Vector<K>> for Matrix<K> {
+//     fn from(vect: Vector<K>) -> Self {
+//         //
+//     }
+// }
