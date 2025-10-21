@@ -3,17 +3,17 @@ mod cosine;
 mod cross_prod;
 mod determinant;
 mod dot_prod;
+mod inverse;
 mod linear_combo;
 mod linear_inter;
 mod linear_map;
 mod my_mat;
 mod my_vect;
 mod norm;
+mod rank;
 mod row_echelon;
 mod trace;
 mod transpose;
-mod inverse;
-
 use crate::add_sub_scale::Scale;
 use crate::my_mat::Matrix;
 use crate::my_vect::Vector;
@@ -425,13 +425,15 @@ fn main() {
             print!("{GREEN} [{RESET}");
             for j in 0..2 {
                 let val: f64 = *inv2.get(&[i, j]).unwrap();
-                if j > 0 { print!(", "); }
+                if j > 0 {
+                    print!(", ");
+                }
                 print!("{:.4}", val);
             }
             println!("{GREEN}]{RESET}");
         }
         println!("{GREEN}]{RESET}");
-        
+
         // Verify: M * M^(-1) = I
         let product = &m2 * &inv2;
         println!("{YELLOW}M * M^(-1) ≈ [{RESET}");
@@ -439,7 +441,9 @@ fn main() {
             print!("{YELLOW} [{RESET}");
             for j in 0..2 {
                 let val: f64 = *product.get(&[i, j]).unwrap();
-                if j > 0 { print!(", "); }
+                if j > 0 {
+                    print!(", ");
+                }
                 print!("{:.4}", val);
             }
             println!("{YELLOW}]{RESET}");
@@ -461,7 +465,9 @@ fn main() {
             print!("{GREEN} [{RESET}");
             for j in 0..3 {
                 let val: f64 = *inv3.get(&[i, j]).unwrap();
-                if j > 0 { print!(", "); }
+                if j > 0 {
+                    print!(", ");
+                }
                 print!("{:6.2}", val);
             }
             println!("{GREEN}]{RESET}");
