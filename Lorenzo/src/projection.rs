@@ -94,6 +94,34 @@ mod tests {
     }
 
     #[test]
+    fn projection_f64() {
+        let fov = 1.5f64;
+        let ratio = 1.0f64;
+        let near = 0.5f64;
+        let far = 50.0f64;
+        let p = projection(fov, ratio, near, far);
+        assert_eq!(p.dims(), &[4, 4]);
+        let a = *p.get(&[0, 0]).unwrap();
+        let b = *p.get(&[1, 1]).unwrap();
+        assert!(a.is_finite() && b.is_finite());
+        assert_eq!(*p.get(&[2, 3]).unwrap(), 1.0);
+        assert!(*p.get(&[3, 2]).unwrap() < 0.0);
+    }
+
+    #[test]
+    fn projection_complex_f32() {
+        let fov = Complex::new(1.0f32, 0.0);
+        let ratio = Complex::new(1.5f32, 0.0);
+        let near = Complex::new(0.1f32, 0.0);
+        let far = Complex::new(100.0f32, 0.0);
+        let p = projection(fov, ratio, near, far);
+        assert_eq!(p.dims(), &[4, 4]);
+        let e = p.get(&[2, 3]).unwrap();
+        assert!((e.im).abs() < 1e-6);
+        assert!((e.re - 1.0).abs() < 1e-6);
+    }
+
+    #[test]
     fn projection_complex_from_real_inputs() {
         // Using real inputs but complex type should match real projection in real part
         let fov = Complex::new(1.0f64, 0.0);
@@ -105,5 +133,37 @@ mod tests {
         // Check some entries are purely real (imag ~ 0)
         let e = p.get(&[2, 3]).unwrap();
         assert!((e.im).abs() < 1e-12);
+    }
+
+    #[test]
+    fn triglike_f32_tan() {
+        let x = 0.5f32;
+        let result = <f32 as TrigLike>::tan(x);
+        assert!((result - x.tan()).abs() < 1e-6);
+    }
+
+    #[test]
+    fn triglike_f64_tan() {
+        let x = 0.75f64;
+        let result = <f64 as TrigLike>::tan(x);
+        assert!((result - x.tan()).abs() < 1e-12);
+    }
+
+    #[test]
+    fn triglike_complex_f32_tan() {
+        let x = Complex::new(0.5f32, 0.0);
+        let result = <Complex<f32> as TrigLike>::tan(x);
+        // For purely real complex, tan should be close to real tan
+        assert!((result.re - 0.5f32.tan()).abs() < 1e-6);
+        assert!(result.im.abs() < 1e-6);
+    }
+
+    #[test]
+    fn triglike_complex_f64_tan() {
+        let x = Complex::new(0.75f64, 0.0);
+        let result = <Complex<f64> as TrigLike>::tan(x);
+        // For purely real complex, tan should be close to real tan
+        assert!((result.re - 0.75f64.tan()).abs() < 1e-12);
+        assert!(result.im.abs() < 1e-12);
     }
 }
