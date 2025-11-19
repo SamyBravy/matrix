@@ -82,6 +82,51 @@ impl<K> Matrix<K> {
         self.data.clone()
     }
 
+    /// Write matrix in display software format to a file.
+    /// Each row is written as comma-separated values ending with a period.
+    /// The matrix is written in COLUMN-MAJOR order (transposed) as required by the display software.
+    /// Floating-point values are formatted to ensure at least one decimal place.
+    /// Only works for 2D matrices.
+    ///
+    /// # Panics
+    /// Panics if the matrix is not 2-dimensional.
+    pub fn write_display_format<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()>
+    where
+        K: fmt::Display,
+    {
+        use std::io::Write;
+
+        if self.dims().len() != 2 {
+            panic!("write_display_format only works for 2D matrices");
+        }
+
+        let rows = self.dims()[0];
+        let cols = self.dims()[1];
+
+        let mut file = std::fs::File::create(path)?;
+
+        // Write in column-major order (transpose): iterate columns, then rows
+        for j in 0..cols {
+            for i in 0..rows {
+                if let Some(val) = self.get(&[i, j]) {
+                    let s = format!("{}", val);
+                    // Ensure floating-point format has at least one decimal place
+                    if !s.contains('.') && !s.contains('e') && !s.contains('E') {
+                        write!(file, "{}.0", s)?;
+                    } else {
+                        write!(file, "{}", s)?;
+                    }
+                    if i < rows - 1 {
+                        write!(file, ", ")?;
+                    }
+                }
+            }
+            writeln!(file, "")?;
+        }
+
+        Ok(())
+    }
+
     /// Helper method for formatting n-dimensional matrices recursively
     fn format_nd_recursive(
         &self,
@@ -702,5 +747,38 @@ mod tests {
         let m3x2 = Matrix::try_from_vector(v, vec![3, 2]).unwrap();
         assert_eq!(m3x2.dims(), &[3, 2]);
         assert_eq!(format!("{}", m3x2), "[[1, 2],\n [3, 4],\n [5, 6]]");
+    }
+
+    #[test]
+    fn test_write_display_format() {
+        use std::io::Read;
+
+        // Create a 2x3 matrix:
+        // [[1.0, 2.0, 3.0],
+        //  [4.0, 5.0, 6.0]]
+        let m = Matrix::try_from_nested(vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]]).unwrap();
+
+        let test_path = "/tmp/test_matrix_display.txt";
+        m.write_display_format(test_path).unwrap();
+
+        let mut file = std::fs::File::open(test_path).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        // Expected output in column-major order (transposed):
+        // Column 0: [1.0, 4.0] -> "1.0, 4.0.\n"
+        // Column 1: [2.0, 5.0] -> "2.0, 5.0.\n"
+        // Column 2: [3.0, 6.0] -> "3.0, 6.0.\n"
+        assert_eq!(contents, "1.0, 4.0\n2.0, 5.0\n3.0, 6.0\n");
+
+        // Clean up
+        std::fs::remove_file(test_path).ok();
+    }
+
+    #[test]
+    #[should_panic(expected = "write_display_format only works for 2D matrices")]
+    fn test_write_display_format_panics_on_3d() {
+        let m = Matrix::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]);
+        m.write_display_format("/tmp/should_fail.txt").unwrap();
     }
 }

@@ -1,6 +1,6 @@
+use crate::dot_prod::DotF32;
 use crate::my_vect::Vector;
 use crate::norm::Norms;
-use crate::dot_prod::DotF32;
 
 pub fn angle_cos<K>(u: &Vector<K>, v: &Vector<K>) -> f32
 where

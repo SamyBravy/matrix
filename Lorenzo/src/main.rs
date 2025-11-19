@@ -10,6 +10,7 @@ mod linear_map;
 mod my_mat;
 mod my_vect;
 mod norm;
+mod projection;
 mod rank;
 mod row_echelon;
 mod trace;
@@ -493,6 +494,38 @@ fn main() {
     if let Some(invc) = mc.inverse() {
         println!("{GREEN}M^(-1) = {invc}{RESET}");
     }
+
+    header("Projection ");
+    sub("3D real");
+    let fov: f32 = 90.0;
+    let ratio: f32 = 16.0 / 9.0;
+    let near: f32 = 0.1;
+    let far: f32 = 100.0;
+    println!("{BLUE}fov = {fov}, ratio = {ratio}, near = {near}, far = {far}{RESET}");
+
+    let mat = projection::projection(fov, ratio, near, far);
+    println!("{GREEN}Projection Matrix (4x4):{RESET}");
+    for i in 0..4 {
+        print!("{GREEN} [{RESET}");
+        for j in 0..4 {
+            let val: f32 = *mat.get(&[i, j]).unwrap();
+            if j > 0 {
+                print!(", ");
+            }
+            print!("{:8.4}", val);
+        }
+        println!("{GREEN}]{RESET}");
+    }
+    println!();
+
+    // Write to file for display software
+    match mat.write_display_format("proj") {
+        Ok(_) => {
+            println!("{YELLOW}Wrote projection matrix to 'proj' file for display software{RESET}")
+        }
+        Err(e) => println!("{RED}Failed to write proj file: {e}{RESET}"),
+    }
+    println!("{CYAN}Usage: ./display (from matrix_display folder){RESET}");
 }
 
 // Unit tests and small examples exercised via `cargo test`.
