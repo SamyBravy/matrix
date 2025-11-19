@@ -38,14 +38,14 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 | Lorenzo | Lorenzo/src/linear_inter.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Lorenzo | Lorenzo/src/linear_map.rs | 97.14% | 96.10% | 97.48% | 70.83% |
 | Lorenzo | Lorenzo/src/main.rs | 82.35% | 28.52% | 34.22% | — |
-| Lorenzo | Lorenzo/src/my_mat.rs | 81.63% | 87.04% | 90.04% | 73.91% |
+| Lorenzo | Lorenzo/src/my_mat.rs | 85.71% | 88.77% | 90.92% | 73.91% |
 | Lorenzo | Lorenzo/src/my_vect.rs | 66.67% | 58.67% | 47.06% | — |
 | Lorenzo | Lorenzo/src/norm.rs | 95.65% | 95.92% | 96.79% | — |
 | Lorenzo | Lorenzo/src/projection.rs | 71.43% | 89.83% | 93.70% | 50.00% |
-| Lorenzo | Lorenzo/src/rank.rs | 0.00% | 0.00% | 0.00% | — |
+| Lorenzo | Lorenzo/src/rank.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Lorenzo | Lorenzo/src/row_echelon.rs | 100.00% | 98.32% | 99.23% | 83.33% |
 | Lorenzo | Lorenzo/src/trace.rs | 100.00% | 100.00% | 100.00% | 100.00% |
-| Lorenzo | Lorenzo/src/transpose.rs | 0.00% | 0.00% | 0.00% | — |
+| Lorenzo | Lorenzo/src/transpose.rs | 100.00% | 100.00% | 100.00% | 100.00% |
 | Samuele | Samuele/src/main.rs | 0.00% | 0.00% | 0.00% | — |
 | Samuele | Samuele/src/matrix.rs | 0.00% | 0.00% | 0.00% | — |
 | Samuele | Samuele/src/vector.rs | 0.00% | 0.00% | 0.00% | — |
@@ -55,7 +55,7 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 <!-- COVERAGE:CRATE-START -->
 | Crate | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|-------------------|---------------|-----------------|-----------------|
-| Lorenzo | 90.27% | 78.46% | 80.20% | 79.22% |
+| Lorenzo | 92.34% | 80.87% | 82.40% | 80.49% |
 | Samuele | 0.00% | 0.00% | 0.00% | — |
 <!-- COVERAGE:CRATE-END -->
 
@@ -63,7 +63,7 @@ The CI workflow runs `cargo llvm-cov` and rewrites the tables below. Do not edit
 <!-- COVERAGE:WORKSPACE-START -->
 | Scope | Function Coverage | Line Coverage | Region Coverage | Branch Coverage |
 |-------|-------------------|---------------|-----------------|-----------------|
-| Workspace | 85.29% | 76.83% | 79.16% | 79.22% |
+| Workspace | 87.54% | 79.27% | 81.39% | 80.49% |
 <!-- COVERAGE:WORKSPACE-END -->
 
 Branch coverage is captured using `cargo +nightly llvm-cov --branch`, so the Branch column reflects real execution percentages (nightly toolchain required).
