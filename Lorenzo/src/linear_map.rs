@@ -56,9 +56,17 @@ where
     /// This is not exposed via `Mul` because that implementation always returns a vector; using an
     /// inherent method avoids an API that changes return type based on runtime shape.
     pub fn dot_vector(&self, v: &Vector<K>) -> K {
-        assert!(self.dims().len() == 1, "dot_vector requires a rank-1 matrix (shape [N])");
+        assert!(
+            self.dims().len() == 1,
+            "dot_vector requires a rank-1 matrix (shape [N])"
+        );
         let n = self.dims()[0];
-        assert!(v.len() == n, "Length mismatch: matrix has {} elements, vector has {}", n, v.len());
+        assert!(
+            v.len() == n,
+            "Length mismatch: matrix has {} elements, vector has {}",
+            n,
+            v.len()
+        );
         let mut acc = K::zero();
         for i in 0..n {
             let val = self.get(&[i]).expect("in bounds").clone();
@@ -117,7 +125,7 @@ where
         let b_rank = b_shape.len();
 
         // Helper closures
-    let _multi_to_flat = |idx: &[usize], shape: &[usize]| -> usize {
+        let _multi_to_flat = |idx: &[usize], shape: &[usize]| -> usize {
             let mut flat = 0;
             let mut stride = 1;
             for (dim, &sz) in shape.iter().rev().enumerate() {
@@ -429,11 +437,14 @@ mod tests {
         let a = Matrix::from_nested_unchecked(vec![vec![1, 2], vec![3, 4]]);
         let b = Matrix::from_nested_unchecked(vec![vec![5, 6], vec![7, 8]]);
         let c = &a * &b; // borrowed multiply
-        // a and b still usable
+                         // a and b still usable
         assert_eq!(a.dims(), &[2, 2]);
         assert_eq!(b.dims(), &[2, 2]);
         assert_eq!(c.dims(), &[2, 2]);
-        assert_eq!(c.linear_iter().cloned().collect::<Vec<_>>(), vec![19, 22, 43, 50]);
+        assert_eq!(
+            c.linear_iter().cloned().collect::<Vec<_>>(),
+            vec![19, 22, 43, 50]
+        );
     }
 
     #[test]
@@ -455,9 +466,25 @@ mod tests {
     fn borrowed_scalar_mul() {
         let a = Matrix::from_nested_unchecked(vec![vec![1, 2], vec![3, 4]]);
         let b = &a * 10;
-        assert_eq!(b.linear_iter().cloned().collect::<Vec<_>>(), vec![10, 20, 30, 40]);
+        assert_eq!(
+            b.linear_iter().cloned().collect::<Vec<_>>(),
+            vec![10, 20, 30, 40]
+        );
         // Original unchanged
-        assert_eq!(a.linear_iter().cloned().collect::<Vec<_>>(), vec![1, 2, 3, 4]);
+        assert_eq!(
+            a.linear_iter().cloned().collect::<Vec<_>>(),
+            vec![1, 2, 3, 4]
+        );
+    }
+
+    #[test]
+    fn scalar_mul_assign() {
+        let mut a = Matrix::from_nested_unchecked(vec![vec![1, 2], vec![3, 4]]);
+        a *= 5;
+        assert_eq!(
+            a.linear_iter().cloned().collect::<Vec<_>>(),
+            vec![5, 10, 15, 20]
+        );
     }
 
     #[test]

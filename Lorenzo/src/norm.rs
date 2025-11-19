@@ -132,6 +132,52 @@ mod tests {
     }
 
     #[test]
+    fn test_norm_i64() {
+        let v = Vector::from(vec![3i64, 4i64]);
+        let result = v.norm_2();
+        assert!(approx_eq(result, 5.0));
+        assert!(approx_eq(v.norm_1(), 7.0));
+        assert!(approx_eq(v.norm_inf(), 4.0));
+    }
+
+    #[test]
+    fn test_norm_isize() {
+        let v = Vector::from(vec![5isize, -12isize]);
+        let result = v.norm_2();
+        assert!(approx_eq(result, 13.0)); // sqrt(25 + 144) = 13
+        assert!(approx_eq(v.norm_1(), 17.0)); // |5| + |-12| = 17
+        assert!(approx_eq(v.norm_inf(), 12.0)); // max(5, 12) = 12
+    }
+
+    #[test]
+    fn test_magnitude_f32() {
+        let x = 3.5f32;
+        assert!(approx_eq(x.mag(), 3.5));
+        assert!(approx_eq(x.mag_sq(), 12.25));
+    }
+
+    #[test]
+    fn test_magnitude_f64() {
+        let x = -4.5f64;
+        assert!(approx_eq(x.mag(), 4.5));
+        assert!(approx_eq(x.mag_sq(), 20.25));
+    }
+
+    #[test]
+    fn test_magnitude_complex_f32() {
+        let z = Complex::new(3.0f32, 4.0f32);
+        assert!(approx_eq(z.mag(), 5.0));
+        assert!(approx_eq(z.mag_sq(), 25.0));
+    }
+
+    #[test]
+    fn test_magnitude_complex_f64() {
+        let z = Complex::new(3.0f64, 4.0f64);
+        assert!(approx_eq(z.mag(), 5.0));
+        assert!(approx_eq(z.mag_sq(), 25.0));
+    }
+
+    #[test]
     fn test_norm_complex() {
         let v = Vector::from(vec![Complex::new(3.0f32, 4.0f32)]);
         let result = v.norm_2();
